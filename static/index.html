@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokeEstratega-AI | Coach de Combate & Teambuilder</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">PokeEstratega-AI</div>
+        <div class="brand-subtitle">Asistente & Teambuilder Competitivo • Pokémon Añil</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <span class="status-dot"></span>
+      <span id="ollama-status">Ollama & LangGraph Online</span>
+    </div>
+  </header>
+
+  <!-- Main Grid -->
+  <div class="main-container">
+
+    <!-- Left: Chat Section -->
+    <section class="chat-section">
+      <div class="chat-history" id="chat-history">
+        <!-- Initial Welcome Message -->
+        <div class="message bot">
+          <div class="msg-avatar">⚡</div>
+          <div class="msg-content">
+            <p><strong>¡Hola, Entrenador!</strong> Soy <strong>PokeEstratega-AI</strong>, tu asesor táctico de combate competitivo basado en los datos de <strong>Pokémon Añil</strong>.</p>
+            <p>Puedo ayudarte a:</p>
+            <ul>
+              <li>🔍 <strong>Consultar fichas y stats exactas</strong> (ej: <em>"Stats y rol de Gengar"</em>).</li>
+              <li>🛡️ <strong>Calcular debilidades y resistencias exactas</strong> (ej: <em>"¿Cuáles son las debilidades de Swampert?"</em>).</li>
+              <li>⚔️ <strong>Construir y auditar tu equipo de hasta 6 Pokémon</strong> (ej: <em>"Añade a Charizard a mi equipo"</em>).</li>
+              <li>📋 <strong>Exportar tu equipo directamente a Pokémon Showdown</strong> con EVs y naturalezas sugeridas.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Suggestion Pills -->
+      <div class="quick-pills">
+        <button class="quick-pill" onclick="sendQuickPrompt('¿Cuáles son las debilidades y counters de Gengar?')">🛡️ Debilidades Gengar</button>
+        <button class="quick-pill" onclick="sendQuickPrompt('Añade a Charizard a mi equipo')">➕ Añadir Charizard</button>
+        <button class="quick-pill" onclick="sendQuickPrompt('Añade a Swampert a mi equipo')">➕ Añadir Swampert</button>
+        <button class="quick-pill" onclick="sendQuickPrompt('Audita la sinergia y coberturas de mi equipo')">🔍 Auditar Equipo</button>
+        <button class="quick-pill" onclick="sendQuickPrompt('Exporta mi equipo en formato Showdown')">📋 Exportar Showdown</button>
+      </div>
+
+      <!-- Chat Input -->
+      <div class="chat-input-bar">
+        <div class="chat-input-wrapper">
+          <input type="text" id="user-input" class="chat-input" placeholder="Pregunta sobre cualquier Pokémon, debilidad, o gestión de equipo..." autocomplete="off">
+        </div>
+        <button id="send-btn" class="send-btn" onclick="sendMessage()">
+          <span>Enviar</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Right: Teambuilder & Inspector -->
+    <aside class="dashboard-section">
+
+      <!-- Team Card -->
+      <div class="dash-card">
+        <div class="dash-title">
+          <span>Mi Equipo Activo</span>
+          <span id="team-counter" style="color: var(--accent-cyan);">0 / 6</span>
+        </div>
+        <div class="team-slots" id="team-slots-container">
+          <div class="team-slot" style="color: var(--text-secondary); font-size: 0.85rem; justify-content: center;">
+            No tienes Pokémon en tu equipo aún.
+          </div>
+        </div>
+        <div class="team-actions">
+          <button class="action-btn primary" onclick="openShowdownModal()">
+            <span>📋 Ver Showdown</span>
+          </button>
+          <button class="action-btn" onclick="clearTeam()">
+            <span>🗑️ Vaciar Equipo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Inspection Card -->
+      <div class="dash-card" id="inspector-card">
+        <div class="dash-title">
+          <span>Ficha Técnica Rápida</span>
+          <span id="inspect-pokename" style="color: var(--accent-yellow);">Selecciona un Pokémon</span>
+        </div>
+        <div id="inspector-content">
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">
+            Consulta cualquier Pokémon en el chat para visualizar sus estadísticas base y multiplicadores de daño aquí.
+          </p>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- Showdown Paste Modal -->
+  <div class="modal-overlay" id="showdown-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="color:#fff;">Formato Pokémon Showdown</h3>
+        <button onclick="closeShowdownModal()" style="background:none;border:none;color:#ff6b6b;font-size:1.3rem;cursor:pointer;">✕</button>
+      </div>
+      <textarea id="showdown-text" class="modal-textarea" readonly></textarea>
+      <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+        <button class="action-btn" onclick="copyShowdownClipboard()">
+          <span id="copy-btn-text">📋 Copiar al Portapapeles</span>
+        </button>
+        <button class="action-btn primary" onclick="closeShowdownModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

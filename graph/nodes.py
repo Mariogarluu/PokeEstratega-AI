@@ -43,7 +43,17 @@ def classify_intent_node(state: PokeState) -> Dict[str, Any]:
     elif detected or any(k in query for k in ["stats", "estadisticas", "ataque", "velocidad", "movimientos", "habilidad", "info", "ficha"]):
         intent = "pokedex"
     else:
-        intent = "general"
+        # Check if the query is related to pokemon or coach interactions
+        pokemon_terms = [
+            "pokemon", "pokémon", "combate", "pelea", "estrategia", "entrenador", "añil",
+            "vgc", "ou", "showdown", "gimnasio", "liga", "sweeper", "wall", "pivot",
+            "objeto", "habilidad", "ataque", "movimiento", "tipo", "tipos", "evs", "ivs",
+            "naturaleza", "hola", "buenas", "ayuda", "saludos", "equipo", "team", "quién eres", "quien eres"
+        ]
+        if any(pt in query for pt in pokemon_terms):
+            intent = "general"
+        else:
+            intent = "off_topic"
 
     return {
         "intent": intent,
@@ -178,13 +188,19 @@ def showdown_node(state: PokeState) -> Dict[str, Any]:
     return {"context": context}
 
 def synthesizer_node(state: PokeState) -> Dict[str, Any]:
+    intent = state.get("intent", "general")
+    if intent == "off_topic":
+        return {
+            "response": "¡Alto ahí, Entrenador! 🛑 Mi base de datos táctica y sensores están dedicados exclusivamente al universo Pokémon y a la estrategia de combate en **Pokémon Añil**.\n\nNo tengo conocimientos ni respondo sobre programación, código (como bucles de Python) ni otros temas ajenos a Pokémon. Si necesitas calcular debilidades de tipos, consultar fichas técnicas de Pokémon o armar tu equipo competitivo de 6, ¡aquí me tienes listo para el combate!"
+        }
+
     context = state.get("context", "")
     query = state.get("query", "")
     team = state.get("team", [])
-    team_summary = ", ".join([p["name"] for p in team]) if team else "Ninguno"
+    team_summary = ", ".join([f"{p['name']} ({SPANISH_TYPE_NAMES.get(p.get('type1'), p.get('type1'))})" for p in team]) if team else "Ninguno"
 
-    system_prompt = f"""Eres PokeEstratega-AI, el Asistente y Coach de Combate Competitivo definitivo de Pokémon.
-Tu objetivo es dar consejos estratégicos de alto nivel (tiers OU/VGC, roles como Sweeper, Wall, Pivot, sinergias de tipos y sets competitivos).
+    system_prompt = f"""Eres PokeEstratega-AI, el Asistente y Coach de Combate Competitivo definitivo de Pokémon (especializado en Pokémon Añil).
+Tu ÚNICO propósito es la estrategia, combate, análisis de debilidades, teambuilding y datos del universo Pokémon.
 
 DATOS EXACTOS VERIFICADOS (Calculados matemáticamente):
 {context}
@@ -192,11 +208,13 @@ DATOS EXACTOS VERIFICADOS (Calculados matemáticamente):
 ESTADO DEL EQUIPO DEL USUARIO ({len(team)}/6):
 {team_summary}
 
-DIRECTRICES:
-1. Sé conciso, profesional y entusiasta como un estratega veterano.
-2. Si se han calculado debilidades o stats, básate estrictamente en los datos verificados proporcionados (no inventes números ni tipos).
-3. Si el usuario pide añadir o quitar miembros o exportar a Showdown, confirma la acción claramente y ofrece una sugerencia táctica para complementar el equipo.
-4. Responde en español."""
+REGLAS ESTRICTAS DE SEGURIDAD Y DOMINIO (GUARDRAILS):
+1. REGLA FUNDAMENTAL: Eres EXCLUSIVAMENTE un asistente de combate y teambuilding Pokémon. TIENES TOTALMENTE PROHIBIDO responder preguntas sobre programación (Python, bucles, desarrollo web, etc.), tareas académicas, matemáticas ajenas a Pokémon, o cualquier tema fuera del universo Pokémon.
+2. Si el usuario te pregunta sobre cualquier tema que no sea Pokémon (por ejemplo: "cómo hago un bucle en Python", "hazme una redacción", etc.), DEBES RECHAZAR la consulta educadamente pero de forma tajante y con personalidad de entrenador Pokémon.
+3. Si la consulta sí es sobre Pokémon, sé conciso, profesional y entusiasta como un estratega veterano.
+4. Si se han calculado debilidades o stats, básate estrictamente en los datos verificados proporcionados (no inventes números ni tipos).
+5. Si el usuario pide añadir o quitar miembros o exportar a Showdown, confirma la acción claramente y ofrece una sugerencia táctica para complementar el equipo.
+6. Responde siempre en español."""
 
     try:
         llm = ChatOllama(model="llama3.1:8b", base_url="http://localhost:11434", temperature=0.2)

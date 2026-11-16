@@ -143,15 +143,15 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
     context_parts = list(system_notes)
     if team:
         audit = type_chart.audit_team(team)
-        names = [p["name"] for p in team]
-        context_parts.append(f"### Equipo Actual ({len(team)}/6): {', '.join(names)}")
+        member_summaries = [f"{p['name']} ({SPANISH_TYPE_NAMES.get(p['type1'], p['type1'])}{' / ' + SPANISH_TYPE_NAMES.get(p['type2'], p['type2']) if p.get('type2') else ''})" for p in team]
+        context_parts.append(f"### Equipo Actual ({len(team)}/6):\n" + "\n".join(f"- {m}" for m in member_summaries))
 
         if audit["critical_vulnerabilities"]:
-            context_parts.append("⚠️ **Vulnerabilidades Críticas Detectadas:**")
+            context_parts.append("\n⚠️ **Vulnerabilidades Críticas Detectadas:**")
             for cv in audit["critical_vulnerabilities"]:
                 context_parts.append(f"- Tipo **{cv['type_name_es']}**: {cv['weak_count']} miembros débiles y solo {cv['resist_count']} resistencias.")
         else:
-            context_parts.append("✨ El equipo tiene un buen equilibrio defensivo sin vulnerabilidades compartidas críticas.")
+            context_parts.append("\n✨ El equipo tiene un buen equilibrio defensivo sin vulnerabilidades compartidas críticas.")
 
         if audit["uncovered_types_offensively"]:
             uncovered_es = [SPANISH_TYPE_NAMES.get(t, t) for t in audit["uncovered_types_offensively"][:4]]

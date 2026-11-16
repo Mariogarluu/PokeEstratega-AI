@@ -202,12 +202,6 @@ async function sendMessage() {
   }
 }
 
-function sendQuickPrompt(promptText) {
-  const input = document.getElementById("user-input");
-  input.value = promptText;
-  sendMessage();
-}
-
 function appendMessage(role, text) {
   const history = document.getElementById("chat-history");
   const id = "msg-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);

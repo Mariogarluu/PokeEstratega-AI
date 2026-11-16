@@ -192,40 +192,6 @@ body {
   color: var(--accent-yellow);
 }
 
-/* Quick Pills */
-.quick-pills {
-  flex-shrink: 0;
-  padding: 8px 20px;
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  white-space: nowrap;
-  background-color: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
-  scrollbar-width: none;
-}
-
-.quick-pills::-webkit-scrollbar {
-  display: none;
-}
-
-.quick-pill {
-  background-color: var(--bg-card);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.quick-pill:hover {
-  background-color: #2f354a;
-  color: var(--text-primary);
-  border-color: var(--accent-cyan);
-}
-
 /* Chat Input Bar */
 .chat-input-bar {
   flex-shrink: 0;

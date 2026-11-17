@@ -12,7 +12,7 @@ from graph.nodes import (
 
 def route_intent(state: PokeState) -> str:
     intent = state.get("intent", "general")
-    if intent in ("add_team", "remove_team", "team_audit"):
+    if intent in ("add_team", "remove_team", "team_audit", "team_build_suggest"):
         return "team_manager"
     if intent == "matchup":
         return "matchup"

@@ -59,6 +59,11 @@ def classify_intent_node(state: PokeState) -> Dict[str, Any]:
     # 3. Detect intent using flexible word stems
     add_stems = ["añad", "agreg", "met", "inclu", "sum", "pon", "mete", "incorpor"]
     remove_stems = ["quit", "elimin", "sac", "borr"]
+    suggest_stems = [
+        "sugier", "recomiend", "crea", "te dejo crear", "hazme un equipo", "completa",
+        "termina", "arma", "armame", "siguiente pokemon", "siguiente miembro", "proximo pokemon",
+        "próximo pokemon", "opcion", "opciones", "otro pokemon", "compañero", "compañeros", "falta"
+    ]
     off_topic_indicators = [
         "bucle", "python", "javascript", "c++", "java", "html", "css", "react", "código", "codigo",
         "programar", "programacion", "programación", "script", "algoritmo", "sql", "database",
@@ -69,6 +74,8 @@ def classify_intent_node(state: PokeState) -> Dict[str, Any]:
         intent = "showdown_export"
     elif any(k in query for k in remove_stems):
         intent = "remove_team"
+    elif any(s in query for s in suggest_stems) and any(w in query for w in ["equipo", "team", "compañero", "compañeros", "opcion", "opciones", "siguiente", "fichaje", "lineup", "crear", "muro", "defensivo", "ofensivo", "terminar", "completar", "asco"]):
+        intent = "team_build_suggest"
     elif any(k in query for k in add_stems) and (detected or any(w in query for w in ["equipo", "team", "lineup"])):
         intent = "add_team"
     elif any(k in query for k in ["equipo", "sinergia", "mi team", "auditoría", "auditoria", "vulnerabilidad del equipo"]):
@@ -196,8 +203,18 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
             if len(team) < initial_len:
                 system_notes.append(f"❌ Se ha eliminado a **{p_name}** del equipo ({len(team)}/6).")
 
-    # Team Audit
+    # Team Audit & Synergy Suggestions
     context_parts = list(system_notes)
+    suggested_options = None
+
+    if intent in ("team_build_suggest", "team_audit") or (len(team) < 6 and any(w in query_lower for w in ["sugier", "recomiend", "crear", "hazme", "falta", "siguiente", "termina", "completa", "asco", "defensivo", "ofensivo"])):
+        archetype = "defensive" if any(w in query_lower for w in ["defens", "stall", "tanque", "muro", "aguant", "asco"]) else ("offensive" if any(w in query_lower for w in ["ofensiv", "sweeper", "rapido", "ataque", "hyper"]) else "balanced")
+        suggested_options = type_chart.find_best_partners(team, parser, archetype=archetype, top_k=3)
+        if suggested_options:
+            context_parts.append("\n### 🎯 Top 3 Opciones de Sinergia Ideales para tu Equipo:")
+            for i, cand in enumerate(suggested_options, 1):
+                context_parts.append(f"{i}. **{cand['name']}** ({cand['role']}): {cand['reason']}")
+
     if team:
         audit = type_chart.audit_team(team)
         member_summaries = [f"{p['name']} ({SPANISH_TYPE_NAMES.get(p['type1'], p['type1'])}{' / ' + SPANISH_TYPE_NAMES.get(p['type2'], p['type2']) if p.get('type2') else ''})" for p in team]
@@ -218,7 +235,8 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
 
     return {
         "team": team,
-        "context": "\n".join(context_parts)
+        "context": "\n".join(context_parts),
+        "suggested_options": suggested_options
     }
 
 def showdown_node(state: PokeState) -> Dict[str, Any]:
@@ -265,7 +283,11 @@ ESTADO DEL EQUIPO DEL USUARIO:
 ACCIONES REALIZADAS EN ESTE TURNO:
 - Si en los DATOS EXACTOS aparece '✅ Se ha añadido a...', confirma con orgullo y tu energía habitual que el Pokémon ya ha sido metido en el equipo. Celébralo como un fichaje god tier y sugiere de inmediato la siguiente pieza clave para cubrir sus debilidades.
 - Si en los DATOS EXACTOS aparece '❌ Se ha eliminado a...', confirma que lo has mandado al banquillo/lobby.
-- NUNCA digas '¿qué Pokémon quieres añadir?' o 'no sé a qué te refieres' si en los DATOS EXACTOS ya figura que el Pokémon fue añadido exitosamente.
+- Si en los DATOS EXACTOS aparecen 'Top 3 Opciones de Sinergia':
+  Presenta las opciones con tu flow streamer (1 frase impactante por opción explicando por qué da asco al rival o cubre las debilidades del equipo).
+  Dile al usuario que pulse cualquiera de los botones interactivos de abajo para incorporar al que prefiera.
+- NUNCA digas '¿qué Pokémon quieres añadir?' si en los DATOS EXACTOS ya figura que el Pokémon fue añadido exitosamente.
+- CONCISIÓN OBLIGATORIA: Sé directo, enérgico e impactante (máximo 160-180 palabras). Termina siempre tus frases y no te cortes a medias.
 
 REGLAS DE DOMINIO:
 1. Eres un coach de combate Pokémon y NADA más. No hables de programación ni código.
@@ -284,7 +306,7 @@ REGLAS DE DOMINIO:
                 groq_api_key=groq_api_key,
                 model_name=groq_model,
                 temperature=0.4,
-                max_tokens=450
+                max_tokens=650
             )
             response = llm.invoke([
                 SystemMessage(content=system_prompt),
@@ -310,4 +332,7 @@ REGLAS DE DOMINIO:
     if not res_text:
         res_text = f"{context}\n\n*(Nota técnica: Datos tácticos verificados generados por el motor determinista)*"
 
-    return {"response": res_text}
+    return {
+        "response": res_text,
+        "suggested_options": state.get("suggested_options")
+    }

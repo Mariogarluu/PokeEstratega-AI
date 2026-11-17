@@ -136,3 +136,114 @@ class TypeChart:
             "uncovered_types_offensively": uncovered_types,
             "individual_matchups": individual_matchups
         }
+
+    def find_best_partners(self, team_pokemon: List[Dict[str, Any]], parser: Any, archetype: str = "balanced", top_k: int = 3) -> List[Dict[str, Any]]:
+        existing_names = {p["name"].lower() for p in team_pokemon}
+        
+        # Calculate existing team vulnerabilities and missing STABs
+        team_weakness_types = set()
+        team_stabs = set()
+        for p in team_pokemon:
+            t1 = p.get("type1", "NORMAL")
+            t2 = p.get("type2")
+            team_stabs.add(t1)
+            if t2:
+                team_stabs.add(t2)
+            matchups = self.get_matchups(t1, t2)
+            team_weakness_types.update(matchups.get("weaknesses", []))
+
+        # Competitive pools per archetype
+        defensive_pool = [
+            ("Corviknight", "Special Wall / Defogger", "Inmune a Tierra y Veneno, resiste Hada y Dragón. Pivote supremo."),
+            ("Toxapex", "Physical Wall / Toxico", "Muro venenoso infranqueable, resiste Hada, Lucha y Hielo con Regeneración."),
+            ("Ferrothorn", "Hazard Setter / Spikes", "Resiste Dragón, Hada y Agua. Coloca púas y desgasta con Punta Acero."),
+            ("Blissey", "Special Wall Cleric", "Esponja especial absoluta, amortigua ataques psíquicos y especiales."),
+            ("Slowbro", "Physical Wall / Pivot", "Regeneración y cobertura para absorber golpes de lucha, acero y fuego."),
+            ("Gliscor", "Stall Breaker / Toxic Orb", "Inmune a Tierra y Eléctrico, cura pasiva y desgaste masivo."),
+            ("Skarmory", "Physical Spikes Wall", "Muro físico clásico de púas e inmunidad a tierra."),
+            ("Clefable", "Unaware Cleric", "Tipo Hada puro, anula boosts rivales con Ignorante y cubre dragones."),
+            ("Gastrodon", "Water / Ground Tank", "Inmunidad a Agua y Eléctrico con Colector, ideal ante lluvia."),
+            ("Heatran", "Special Tank / Trapper", "Resistencias masivas a 10 tipos e inmunidad a fuego con Absorbe Fuego.")
+        ]
+
+        offensive_pool = [
+            ("Dragapult", "Fast Special Sweeper", "Velocidad ridícula (142), revienta con ataques fantasma y dragón."),
+            ("Volcarona", "Quiver Dance Sweeper", "Danza Aleteo y barre equipos enteros con Fuego/Bicho."),
+            ("Kartana", "Physical Wallbreaker", "Ataque base 181 monstruoso con Ultraimpulso."),
+            ("Greninja", "Protean Attacker", "Versatilidad total y cobertura ofensiva universal."),
+            ("Weavile", "Ice / Dark Revenge Killer", "Destruye dragones, tierras y voladores con Chuzos y Desarme."),
+            ("Scizor", "Bullet Punch Cleaner", "Puño Bala potenciado por Experto con Danza Espada."),
+            ("Gengar", "Ghost / Poison Nuke", "Pegada especial inmediata y alta velocidad.")
+        ]
+
+        balanced_pool = defensive_pool[:5] + offensive_pool[:5]
+
+        archetype_lower = archetype.lower()
+        if any(w in archetype_lower for w in ["defens", "stall", "tanque", "muro", "aguant", "asco"]):
+            candidate_pool = defensive_pool
+        elif any(w in archetype_lower for w in ["ofensiv", "sweeper", "rapido", "ataque", "hyper"]):
+            candidate_pool = offensive_pool
+        else:
+            candidate_pool = balanced_pool
+
+        scored_candidates = []
+        for cand_name, role_title, default_desc in candidate_pool:
+            if cand_name.lower() in existing_names:
+                continue
+            pkmn = parser.get_pokemon(cand_name)
+            if not pkmn:
+                continue
+
+            t1 = pkmn["type1"]
+            t2 = pkmn.get("type2")
+            matchups = self.get_matchups(t1, t2)
+            
+            score = 0
+            covered_weaknesses = []
+            
+            # Bonus: Resisting or being immune to team's existing weaknesses
+            for tw in team_weakness_types:
+                if tw in matchups.get("immunities", []):
+                    score += 6
+                    covered_weaknesses.append(f"{SPANISH_TYPE_NAMES.get(tw, tw)} (inmune)")
+                elif tw in matchups.get("resistances", []):
+                    score += 4
+                    covered_weaknesses.append(f"{SPANISH_TYPE_NAMES.get(tw, tw)}")
+            
+            # Penalty: Sharing team's existing weaknesses
+            for cand_w in matchups.get("weaknesses", []):
+                if cand_w in team_weakness_types:
+                    score -= 2
+
+            # Bonus: New STAB
+            if t1 not in team_stabs:
+                score += 2
+            if t2 and t2 not in team_stabs:
+                score += 2
+
+            # Base stats bonus
+            score += pkmn.get("bst", 500) // 100
+
+            type_es_1 = SPANISH_TYPE_NAMES.get(t1, t1)
+            type_es_2 = SPANISH_TYPE_NAMES.get(t2, t2) if t2 else None
+            types_list = [type_es_1] + ([type_es_2] if type_es_2 else [])
+
+            reason = default_desc
+            if covered_weaknesses:
+                reason += f" Cubre debilidad de equipo a: {', '.join(covered_weaknesses[:2])}."
+
+            badge_label = f"🛡️ + {pkmn['name']} ({role_title.split('/')[0].strip()})"
+
+            scored_candidates.append({
+                "score": score,
+                "name": pkmn["name"],
+                "role": role_title,
+                "types": types_list,
+                "badge_label": badge_label,
+                "reason": reason,
+                "item": "Restos" if "Wall" in role_title or "Tank" in role_title else "Vidasfera",
+                "ability": pkmn.get("hidden_ability") or (pkmn["abilities"][0] if pkmn.get("abilities") else "Presión")
+            })
+
+        scored_candidates.sort(key=lambda x: x["score"], reverse=True)
+        return scored_candidates[:top_k]

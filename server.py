@@ -139,7 +139,8 @@ def chat_endpoint(req: ChatRequest):
             "response": final_state.get("response", ""),
             "intent": final_state.get("intent", "general"),
             "detected_pokemon": final_state.get("detected_pokemon", []),
-            "team": enriched_team
+            "team": enriched_team,
+            "suggested_options": final_state.get("suggested_options") or []
         }
     except Exception as e:
         return {

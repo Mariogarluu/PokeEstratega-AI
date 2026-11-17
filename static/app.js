@@ -303,7 +303,7 @@ async function sendMessage() {
     });
 
     const data = await res.json();
-    updateMessage(loadingId, data.response || "No se obtuvo respuesta.");
+    updateMessage(loadingId, data.response || "No se obtuvo respuesta.", data.suggested_options);
 
     if (data.team) {
       currentTeamList = data.team;
@@ -341,15 +341,86 @@ function appendMessage(role, text) {
   return id;
 }
 
-function updateMessage(id, text) {
+function updateMessage(id, text, suggestedOptions) {
   const el = document.getElementById(id);
   if (!el) return;
   const contentDiv = el.querySelector(".msg-content");
   if (contentDiv) {
-    contentDiv.innerHTML = (typeof marked !== "undefined" && marked.parse) ? marked.parse(text) : `<p>${text}</p>`;
+    let parsedContent = (typeof marked !== "undefined" && marked.parse) ? marked.parse(text) : `<p>${text}</p>`;
+
+    if (suggestedOptions && suggestedOptions.length > 0) {
+      const buttonsHtml = suggestedOptions.map(opt => {
+        const roleParam = (opt.role || '').replace(/'/g, "\\'");
+        const itemParam = (opt.item || '').replace(/'/g, "\\'");
+        const abilityParam = (opt.ability || '').replace(/'/g, "\\'");
+        const label = opt.badge_label || (`+ ${opt.name}`);
+        return `
+          <button class="arcade-btn-choice" onclick="addSuggestedPokemon('${opt.name}', '${roleParam}', '${itemParam}', '${abilityParam}', this)">
+            ${label}
+          </button>
+        `;
+      }).join("");
+
+      parsedContent += `
+        <div class="chat-arcade-buttons">
+          <div style="width: 100%; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-yellow); margin-bottom: 4px;">
+            🕹️ Pulsa para incorporar a tu equipo:
+          </div>
+          ${buttonsHtml}
+        </div>
+      `;
+    }
+
+    contentDiv.innerHTML = parsedContent;
   }
   const history = document.getElementById("chat-history");
   history.scrollTop = history.scrollHeight;
+}
+
+async function addSuggestedPokemon(name, role, item, ability, btnElement) {
+  if (btnElement) {
+    btnElement.disabled = true;
+    btnElement.style.opacity = "0.7";
+    btnElement.textContent = "⏳ Fichando...";
+  }
+
+  try {
+    const res = await fetch(`/team/${sessionId}/add`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      alert(errData.detail || "Error al añadir Pokémon.");
+      if (btnElement) {
+        btnElement.disabled = false;
+        btnElement.style.opacity = "1";
+      }
+      return;
+    }
+
+    const data = await res.json();
+    currentTeamList = data.team || [];
+    renderTeam(currentTeamList);
+
+    if (btnElement) {
+      btnElement.textContent = `✅ ${name} incorporado`;
+      btnElement.style.background = "#00FF66";
+      btnElement.style.color = "#000000";
+    }
+
+    appendMessage("bot", `⚡ ¡Fichaje de élite confirmado! He sumado a **${name}** a tu formación táctica (${currentTeamList.length}/6). Si quieres seguir completando el equipo, dime qué otra necesidad tienes o pídemelo.`);
+    inspectPokemon(name);
+
+  } catch (err) {
+    alert("Error de conexión: " + err.message);
+    if (btnElement) {
+      btnElement.disabled = false;
+      btnElement.style.opacity = "1";
+    }
+  }
 }
 
 // Showdown Modal

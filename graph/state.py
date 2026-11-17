@@ -9,3 +9,4 @@ class PokeState(TypedDict):
     context: str
     response: str
     last_pokemon: Optional[str]
+    suggested_options: Optional[List[Dict[str, Any]]]

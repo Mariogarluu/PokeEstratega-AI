@@ -358,8 +358,6 @@ async function sendMessage() {
     });
 
     const data = await res.json();
-    updateMessage(loadingId, data.response || "No se obtuvo respuesta.", data.suggested_options);
-
     if (data.team) {
       currentTeamList = data.team;
       renderTeam(data.team);
@@ -370,6 +368,8 @@ async function sendMessage() {
       teamBuildState.targetSize = data.team_build.target;
       teamBuildState.archetype = data.team_build.archetype;
     }
+
+    updateMessage(loadingId, data.response || "No se obtuvo respuesta.", data.suggested_options);
 
     if (data.detected_pokemon && data.detected_pokemon.length > 0) {
       inspectPokemon(data.detected_pokemon[0]);
@@ -580,8 +580,6 @@ async function requestNextTeamSlot(queryText) {
       body: JSON.stringify({ message: queryText, session_id: sessionId })
     });
     const data = await res.json();
-    updateMessage(loadingId, data.response || "Aquí tienes las siguientes opciones.", data.suggested_options);
-
     if (data.team) {
       currentTeamList = data.team;
       renderTeam(data.team);
@@ -591,6 +589,8 @@ async function requestNextTeamSlot(queryText) {
       teamBuildState.targetSize = data.team_build.target;
       teamBuildState.archetype = data.team_build.archetype;
     }
+
+    updateMessage(loadingId, data.response || "Aquí tienes las siguientes opciones.", data.suggested_options);
   } catch (err) {
     updateMessage(loadingId, "⚠️ Error al consultar el siguiente miembro: " + err.message);
   }

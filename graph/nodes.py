@@ -70,7 +70,11 @@ def classify_intent_node(state: PokeState) -> Dict[str, Any]:
 
     # 3. Detect intent using flexible word stems
     add_stems = ["añad", "agreg", "met", "inclu", "sum", "pon", "mete", "incorpor"]
-    remove_stems = ["quit", "elimin", "sac", "borr"]
+    remove_stems = [
+        "quit", "elimin", "sac", "borr", "cambi", "reemplaz", "sustitu",
+        "error", "fallo", "no me gusta", "no me conven", "sobra", "fuera",
+        "descart", "deshaz", "desped", "no quiero a", "en vez de", "en lugar de"
+    ]
     suggest_stems = [
         "sugier", "recomiend", "crea", "te dejo crear", "hazme un equipo", "completa",
         "termina", "arma", "armame", "siguiente pokemon", "siguiente miembro", "proximo pokemon",
@@ -90,7 +94,7 @@ def classify_intent_node(state: PokeState) -> Dict[str, Any]:
 
     if any(k in query for k in ["showdown", "exportar", "paste", "copiar equipo"]):
         intent = "showdown_export"
-    elif any(k in query for k in remove_stems):
+    elif any(k in query for k in remove_stems) and (detected or any(w in query for w in ["equipo", "team", "lineup", "este", "ese", "miembro"])):
         intent = "remove_team"
     elif is_team_build:
         intent = "team_build_suggest"
@@ -219,11 +223,39 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
                 system_notes.append(f"✅ Se ha añadido a **{pkmn['name']}**{build_label} al equipo ({len(team)}/6).")
 
     elif intent == "remove_team":
+        removed_names = []
         for p_name in detected:
-            initial_len = len(team)
-            team = [p for p in team if p["name"].lower() != p_name.lower()]
-            if len(team) < initial_len:
-                system_notes.append(f"❌ Se ha eliminado a **{p_name}** del equipo ({len(team)}/6).")
+            matched = [p for p in team if p["name"].lower() == p_name.lower()]
+            if matched:
+                team = [p for p in team if p["name"].lower() != p_name.lower()]
+                removed_names.append(matched[0]["name"])
+                system_notes.append(f"❌ Se ha retirado a **{matched[0]['name']}** de la alineación ({len(team)}/6).")
+        
+        # Check if the user specified a replacement to add in the same command (e.g. "quita a Tauros y pon a Gengar")
+        for p_name in detected:
+            if p_name not in removed_names and not any(p["name"].lower() == p_name.lower() for p in team) and len(team) < 6:
+                if any(k in query_lower for k in ["pon", "met", "por", "añad", "cambia por", "sustituye por", "reemplaza por"]):
+                    pkmn = parser.get_pokemon(p_name)
+                    if pkmn:
+                        entry = dict(pkmn)
+                        if any(w in query_lower for w in ["defens", "tanque", "wall", "aguant"]):
+                            is_phys = pkmn["base_stats"]["defense"] >= pkmn["base_stats"]["sp_defense"]
+                            entry["role"] = "Muralla Física" if is_phys else "Muralla Especial"
+                            entry["nature"] = "Agitada" if is_phys else "Serena"
+                            entry["item"] = "Restos"
+                            entry["moves_custom"] = exporter.select_competitive_moves(pkmn, entry["role"])
+                        elif any(w in query_lower for w in ["ofensiv", "sweeper", "atacante", "rapido", "rápido"]):
+                            is_phys = pkmn["base_stats"]["attack"] >= pkmn["base_stats"]["sp_attack"]
+                            entry["role"] = "Atacante Físico" if is_phys else "Atacante Especial"
+                            entry["nature"] = "Alegre" if is_phys else "Miedosa"
+                            entry["item"] = "Vidasfera"
+                            entry["moves_custom"] = exporter.select_competitive_moves(pkmn, entry["role"])
+
+                        raw_ab = pkmn.get("hidden_ability") or (pkmn["abilities"][0] if pkmn.get("abilities") else "Presión")
+                        ab_obj = parser.get_ability(raw_ab)
+                        entry["ability"] = ab_obj["name"] if ab_obj else raw_ab
+                        team.append(entry)
+                        system_notes.append(f"🔄 Se ha incorporado a **{pkmn['name']}** en su lugar ({len(team)}/6).")
 
     # Determine target size (capped at 6)
     target_size = 6
@@ -238,7 +270,7 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
     context_parts = list(system_notes)
     suggested_options = None
 
-    if intent in ("team_build_suggest", "team_audit") or (len(team) < 6 and any(w in query_lower for w in ["sugier", "recomiend", "crear", "hazme", "falta", "siguiente", "termina", "completa", "asco", "defensivo", "ofensivo", "resto", "elige", "elije", "escoge"])):
+    if intent in ("team_build_suggest", "team_audit", "remove_team") or (len(team) < 6 and any(w in query_lower for w in ["sugier", "recomiend", "crear", "hazme", "falta", "siguiente", "termina", "completa", "asco", "defensivo", "ofensivo", "resto", "elige", "elije", "escoge", "sustitu", "reemplaz", "cambi", "quit", "sac", "error", "fallo"])):
         if len(team) >= 6:
             context_parts.append("\n🏆 **¡EQUIPO COMPLETO (6/6)!** Tu alineación ha alcanzado el límite máximo reglamentario de 6 Pokémon. La formación está cerrada.")
             suggested_options = None
@@ -248,7 +280,10 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
             context_parts.append(f"\n📊 **Contador de Equipo**: {len(team)}/{target_size} miembros. **Faltan {faltan} Pokémon** para completar tu equipo de {target_size} (máximo 6).")
             if suggested_options:
                 next_slot = len(team) + 1
-                context_parts.append(f"\n### 🎯 Top 3 Opciones de Sinergia Ideales para el Slot #{next_slot} (cubriendo debilidades de tu equipo):")
+                if intent == "remove_team":
+                    context_parts.append(f"\n### 🎯 Top 3 Opciones para sustituir a ese miembro y reforzar el equipo (Slot #{next_slot}):")
+                else:
+                    context_parts.append(f"\n### 🎯 Top 3 Opciones de Sinergia Ideales para el Slot #{next_slot} (cubriendo debilidades de tu equipo):")
                 for i, cand in enumerate(suggested_options, 1):
                     context_parts.append(f"{i}. **{cand['name']}** ({cand['role']}): {cand['reason']}")
 
@@ -323,7 +358,7 @@ ESTADO DEL EQUIPO DEL USUARIO:
 
 ACCIONES REALIZADAS EN ESTE TURNO:
 - Si en los DATOS EXACTOS aparece '✅ Se ha añadido a...', confirma con orgullo y tu energía habitual que el Pokémon ya ha sido metido en el equipo. Celébralo como un fichaje god tier y sugiere de inmediato la siguiente pieza clave para cubrir sus debilidades.
-- Si en los DATOS EXACTOS aparece '❌ Se ha eliminado a...', confirma que lo has mandado al banquillo/lobby.
+- Si en los DATOS EXACTOS aparece '❌ Se ha eliminado a...' o '❌ Se ha retirado a...': confirma con orgullo táctico y sin admitir debilidad que lo has mandado al banquillo o al lobby ('¡Te estaba testeando los reflejos tácticos a ver si estabas despierto en el vestuario!'). Y si figuran 'Top 3 Opciones para sustituir a ese miembro', presenta los candidatos y anímale a pulsar uno de los botones interactivos de abajo para cubrir esa vacante y sellar la rotación.
 - Si en los DATOS EXACTOS aparecen 'Top 3 Opciones de Sinergia':
   Presenta las opciones con tu energía pro (1 frase impactante por opción explicando por qué da asco al rival o cubre las debilidades del equipo).
   Dile al usuario que pulse cualquiera de los botones interactivos de abajo para incorporar al que prefiera.

@@ -201,6 +201,9 @@ def chat_endpoint(req: ChatRequest):
                 meta["team_build_archetype"] = meta.get("team_build_archetype", "balanceado")
             
             meta["team_build_active"] = (len(enriched_team) < target and len(enriched_team) < 6)
+        elif intent == "remove_team" and len(enriched_team) < 6:
+            meta["team_build_target"] = 6
+            meta["team_build_active"] = True
         elif len(enriched_team) >= meta.get("team_build_target", 6) or len(enriched_team) >= 6:
             meta["team_build_active"] = False
 

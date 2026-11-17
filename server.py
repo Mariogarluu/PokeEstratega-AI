@@ -170,7 +170,15 @@ def chat_endpoint(req: ChatRequest):
         # Track interactive team building sessions
         intent = final_state.get("intent", "general")
         msg_lower = req.message.lower()
-        if intent == "team_build_suggest" or any(w in msg_lower for w in ["crea un equipo", "hazme un equipo", "arma un equipo", "completa mi equipo", "te dejo crear"]):
+        team_build_triggers = [
+            "crea un equipo", "hazme un equipo", "arma un equipo", "completa mi equipo",
+            "te dejo crear", "quiero un equipo", "haz un equipo", "monta un equipo",
+            "elige el resto", "elije el resto", "escoge el resto", "construye un equipo",
+            "forma un equipo", "siguiente miembro", "siguiente pokemon", "slot"
+        ]
+        is_team_build_req = (intent == "team_build_suggest") or any(w in msg_lower for w in team_build_triggers)
+
+        if is_team_build_req:
             target = 6
             if any(w in msg_lower for w in ["trio", "trío", "3 pokemon", "3 pokémon", "de 3", "tres"]):
                 target = 3
@@ -182,6 +190,7 @@ def chat_endpoint(req: ChatRequest):
                 target = 5
             elif any(w in msg_lower for w in ["1 pokemon", "1 pokémon", "uno solo", "un miembro"]):
                 target = 1
+            target = min(6, target)
             meta["team_build_target"] = target
 
             if any(w in msg_lower for w in ["defens", "stall", "muro", "tanque", "aguant", "asco"]):
@@ -191,16 +200,25 @@ def chat_endpoint(req: ChatRequest):
             else:
                 meta["team_build_archetype"] = meta.get("team_build_archetype", "balanceado")
             
-            meta["team_build_active"] = (len(enriched_team) < target)
-        elif len(enriched_team) >= meta.get("team_build_target", 6):
+            meta["team_build_active"] = (len(enriched_team) < target and len(enriched_team) < 6)
+        elif len(enriched_team) >= meta.get("team_build_target", 6) or len(enriched_team) >= 6:
             meta["team_build_active"] = False
 
+        effective_target = min(6, meta.get("team_build_target", 6))
+        remaining = max(0, effective_target - len(enriched_team))
+
         team_build_info = {
-            "active": meta.get("team_build_active", False),
-            "target": meta.get("team_build_target", 6),
+            "active": meta.get("team_build_active", False) and len(enriched_team) < 6,
+            "target": effective_target,
             "current": len(enriched_team),
+            "remaining": remaining,
             "archetype": meta.get("team_build_archetype", "defensivo")
         }
+
+        # Hard cap: if team has 6 members, no suggested options to prevent exceeding 6
+        suggested_opts = final_state.get("suggested_options") or []
+        if len(enriched_team) >= 6:
+            suggested_opts = []
         
         return {
             "session_id": session_id,
@@ -208,7 +226,7 @@ def chat_endpoint(req: ChatRequest):
             "intent": intent,
             "detected_pokemon": final_state.get("detected_pokemon", []),
             "team": enriched_team,
-            "suggested_options": final_state.get("suggested_options") or [],
+            "suggested_options": suggested_opts,
             "team_build": team_build_info
         }
     except Exception as e:

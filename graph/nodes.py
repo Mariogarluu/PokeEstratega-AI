@@ -27,6 +27,18 @@ exporter = ShowdownExporter(parser)
 # Pre-compile a map of lowercase names for instant detection
 POKEMON_NAMES_MAP = {name.lower(): p for name, p in parser.pokemon.items() if len(name) > 2}
 
+COMMON_NON_POKEMON_WORDS = {
+    "primero", "segundo", "tercero", "cuarto", "quinto", "sexto", "ultimo", "último",
+    "quiero", "equipo", "defensivo", "ofensivo", "tanque", "resto", "elige", "elije",
+    "escoge", "bueno", "mejor", "mucho", "sobre", "contra", "favor", "puedes", "puedo",
+    "decir", "amigo", "hermano", "miembro", "miembros", "compensa", "combate", "pelea",
+    "fuerte", "rapido", "rápido", "ataque", "defensa", "velocidad", "objeto", "habilidad",
+    "movimiento", "movimientos", "completa", "termina", "super", "lineup", "formacion",
+    "formación", "fichaje", "fichajes", "tiempo", "tienes", "tengo", "hacer", "vamos",
+    "pasar", "pasarse", "maximo", "máximo", "minimo", "mínimo", "contador", "faltan",
+    "especifico", "específico", "cuenta", "nunca", "pedido"
+}
+
 def classify_intent_node(state: PokeState) -> Dict[str, Any]:
     query = state["query"].lower()
     last_pkmn = state.get("last_pokemon")
@@ -40,9 +52,9 @@ def classify_intent_node(state: PokeState) -> Dict[str, Any]:
             p_obj = POKEMON_NAMES_MAP[token_clean]
             if p_obj["name"] not in detected:
                 detected.append(p_obj["name"])
-        elif len(token_clean) >= 5:
-            close = difflib.get_close_matches(token_clean, POKEMON_NAMES_MAP.keys(), n=1, cutoff=0.74)
-            if close:
+        elif len(token_clean) >= 5 and token_clean not in COMMON_NON_POKEMON_WORDS:
+            close = difflib.get_close_matches(token_clean, POKEMON_NAMES_MAP.keys(), n=1, cutoff=0.80)
+            if close and close[0] not in COMMON_NON_POKEMON_WORDS:
                 p_obj = POKEMON_NAMES_MAP[close[0]]
                 if p_obj["name"] not in detected:
                     detected.append(p_obj["name"])
@@ -62,7 +74,8 @@ def classify_intent_node(state: PokeState) -> Dict[str, Any]:
     suggest_stems = [
         "sugier", "recomiend", "crea", "te dejo crear", "hazme un equipo", "completa",
         "termina", "arma", "armame", "siguiente pokemon", "siguiente miembro", "proximo pokemon",
-        "próximo pokemon", "opcion", "opciones", "otro pokemon", "compañero", "compañeros", "falta"
+        "próximo pokemon", "opcion", "opciones", "otro pokemon", "compañero", "compañeros", "falta",
+        "elige", "elije", "escoge", "quiero un equipo", "monta un equipo", "construye", "forma un equipo"
     ]
     off_topic_indicators = [
         "bucle", "python", "javascript", "c++", "java", "html", "css", "react", "código", "codigo",
@@ -70,11 +83,16 @@ def classify_intent_node(state: PokeState) -> Dict[str, Any]:
         "redaccion", "redacción", "ensayo", "tarea de historia", "resuelveme", "ecuacion", "ecuación"
     ]
 
+    is_team_build = (
+        any(k in query for k in ["quiero un equipo", "crea un equipo", "hazme un equipo", "arma un equipo", "haz un equipo", "completa mi equipo", "elige el resto", "elije el resto", "escoge el resto", "te dejo crear", "construye un equipo", "forma un equipo"]) or
+        (any(s in query for s in suggest_stems) and any(w in query for w in ["equipo", "team", "compañero", "compañeros", "opcion", "opciones", "siguiente", "fichaje", "lineup", "crear", "muro", "defensivo", "ofensivo", "terminar", "completar", "asco", "slot", "resto"]))
+    )
+
     if any(k in query for k in ["showdown", "exportar", "paste", "copiar equipo"]):
         intent = "showdown_export"
     elif any(k in query for k in remove_stems):
         intent = "remove_team"
-    elif any(s in query for s in suggest_stems) and any(w in query for w in ["equipo", "team", "compañero", "compañeros", "opcion", "opciones", "siguiente", "fichaje", "lineup", "crear", "muro", "defensivo", "ofensivo", "terminar", "completar", "asco"]):
+    elif is_team_build:
         intent = "team_build_suggest"
     elif any(k in query for k in add_stems) and (detected or any(w in query for w in ["equipo", "team", "lineup"])):
         intent = "add_team"
@@ -165,17 +183,17 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
     system_notes = []
     query_lower = state.get("query", "").lower()
 
-    if intent == "add_team":
-        if not detected:
+    if intent == "add_team" or (intent == "team_build_suggest" and detected):
+        if intent == "add_team" and not detected:
             system_notes.append("¿A qué Pokémon deseas añadir? No he detectado ningún Pokémon en tu petición.")
         for p_name in detected:
             pkmn = parser.get_pokemon(p_name)
             if not pkmn:
                 continue
             if any(p["name"].lower() == pkmn["name"].lower() for p in team):
-                system_notes.append(f"{pkmn['name']} ya está en tu equipo.")
+                system_notes.append(f"ℹ️ {pkmn['name']} ya está en tu equipo.")
             elif len(team) >= 6:
-                system_notes.append("El equipo ya tiene 6 Pokémon (máximo alcanzado).")
+                system_notes.append("⚠️ El equipo ya tiene 6 Pokémon (máximo alcanzado).")
             else:
                 entry = dict(pkmn)
                 # Check for customized build keywords (defensivo, tanque, sweeper, etc.)
@@ -207,17 +225,32 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
             if len(team) < initial_len:
                 system_notes.append(f"❌ Se ha eliminado a **{p_name}** del equipo ({len(team)}/6).")
 
+    # Determine target size (capped at 6)
+    target_size = 6
+    for num_w, val in [("1", 1), ("2", 2), ("pareja", 2), ("duo", 2), ("3", 3), ("trio", 3), ("trío", 3), ("tres", 3), ("4", 4), ("cuatro", 4), ("5", 5), ("cinco", 5), ("6", 6), ("seis", 6)]:
+        if num_w in query_lower:
+            target_size = val
+            break
+    target_size = min(6, target_size)
+    faltan = max(0, target_size - len(team))
+
     # Team Audit & Synergy Suggestions
     context_parts = list(system_notes)
     suggested_options = None
 
-    if intent in ("team_build_suggest", "team_audit") or (len(team) < 6 and any(w in query_lower for w in ["sugier", "recomiend", "crear", "hazme", "falta", "siguiente", "termina", "completa", "asco", "defensivo", "ofensivo"])):
-        archetype = "defensive" if any(w in query_lower for w in ["defens", "stall", "tanque", "muro", "aguant", "asco"]) else ("offensive" if any(w in query_lower for w in ["ofensiv", "sweeper", "rapido", "ataque", "hyper"]) else "balanced")
-        suggested_options = type_chart.find_best_partners(team, parser, archetype=archetype, top_k=3)
-        if suggested_options:
-            context_parts.append("\n### 🎯 Top 3 Opciones de Sinergia Ideales para tu Equipo:")
-            for i, cand in enumerate(suggested_options, 1):
-                context_parts.append(f"{i}. **{cand['name']}** ({cand['role']}): {cand['reason']}")
+    if intent in ("team_build_suggest", "team_audit") or (len(team) < 6 and any(w in query_lower for w in ["sugier", "recomiend", "crear", "hazme", "falta", "siguiente", "termina", "completa", "asco", "defensivo", "ofensivo", "resto", "elige", "elije", "escoge"])):
+        if len(team) >= 6:
+            context_parts.append("\n🏆 **¡EQUIPO COMPLETO (6/6)!** Tu alineación ha alcanzado el límite máximo reglamentario de 6 Pokémon. La formación está cerrada.")
+            suggested_options = None
+        else:
+            archetype = "defensive" if any(w in query_lower for w in ["defens", "stall", "tanque", "muro", "aguant", "asco"]) else ("offensive" if any(w in query_lower for w in ["ofensiv", "sweeper", "rapido", "ataque", "hyper"]) else "balanced")
+            suggested_options = type_chart.find_best_partners(team, parser, archetype=archetype, top_k=3)
+            context_parts.append(f"\n📊 **Contador de Equipo**: {len(team)}/{target_size} miembros. **Faltan {faltan} Pokémon** para completar tu equipo de {target_size} (máximo 6).")
+            if suggested_options:
+                next_slot = len(team) + 1
+                context_parts.append(f"\n### 🎯 Top 3 Opciones de Sinergia Ideales para el Slot #{next_slot} (cubriendo debilidades de tu equipo):")
+                for i, cand in enumerate(suggested_options, 1):
+                    context_parts.append(f"{i}. **{cand['name']}** ({cand['role']}): {cand['reason']}")
 
     if team:
         audit = type_chart.audit_team(team)
@@ -291,6 +324,9 @@ ACCIONES REALIZADAS EN ESTE TURNO:
   Presenta las opciones con tu flow streamer (1 frase impactante por opción explicando por qué da asco al rival o cubre las debilidades del equipo).
   Dile al usuario que pulse cualquiera de los botones interactivos de abajo para incorporar al que prefiera.
 - NUNCA digas '¿qué Pokémon quieres añadir?' si en los DATOS EXACTOS ya figura que el Pokémon fue añadido exitosamente.
+- CONTADOR DE FALTANTES Y TOPE REGLAMENTARIO DE 6 (OBLIGATORIO):
+  Menciona siempre con orgullo cuántos Pokémon tiene el equipo actualmente y cuántos FALTAN exactamente para completar el objetivo o el tope de 6 (ej: '¡Fichado Garchomp en el roster (1/6)! Faltan exactamente 5 miembros para completar tu fortaleza de 6').
+  Si el equipo ya tiene 6 Pokémon, declara que la alineación está 100% CERRADA Y COMPLETA (6/6) y que no se puede añadir ningún Pokémon más porque 6 es el límite absoluto de las reglas competitivas.
 - ROLES Y ATRIBUTOS EN ESPAÑOL OBLIGATORIO: Llama siempre a los roles y perfiles por su nombre en castellano ('Muralla Especial', 'Muralla Física', 'Rompemuros', 'Tanque Especial', 'Tanque Físico', 'Atacante Especial', 'Atacante Físico', 'Pone-Trampas', etc.). Nunca uses términos en inglés como 'Special Wall' o 'Stall Breaker'.
 - CONCISIÓN OBLIGATORIA: Sé directo, enérgico e impactante (máximo 160-180 palabras). Termina siempre tus frases y no te cortes a medias.
 

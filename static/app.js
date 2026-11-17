@@ -124,7 +124,14 @@ function renderTeam(teamList) {
   currentTeamList = teamList || [];
   const container = document.getElementById("team-slots-container");
   const counter = document.getElementById("team-counter");
-  if (counter) counter.textContent = `${currentTeamList.length} / 6`;
+  if (counter) {
+    if (currentTeamList.length >= 6) {
+      counter.innerHTML = `<span style="color:#00FF66; font-weight:800;">6 / 6 (COMPLETO)</span>`;
+    } else {
+      const faltan = 6 - currentTeamList.length;
+      counter.innerHTML = `<span style="color:var(--accent-cyan); font-weight:800;">${currentTeamList.length} / 6</span> <span style="font-size:0.75rem; color:var(--accent-yellow); margin-left:4px;">(Faltan ${faltan})</span>`;
+    }
+  }
 
   if (!currentTeamList || currentTeamList.length === 0) {
     container.innerHTML = `
@@ -402,7 +409,11 @@ function updateMessage(id, text, suggestedOptions) {
   if (contentDiv) {
     let parsedContent = (typeof marked !== "undefined" && marked.parse) ? marked.parse(text) : `<p>${text}</p>`;
 
-    if (suggestedOptions && suggestedOptions.length > 0) {
+    if (suggestedOptions && suggestedOptions.length > 0 && currentTeamList.length < 6) {
+      const targetSize = Math.min(6, teamBuildState.targetSize || 6);
+      const faltan = Math.max(0, targetSize - currentTeamList.length);
+      const nextSlot = currentTeamList.length + 1;
+
       const buttonsHtml = suggestedOptions.map(opt => {
         const roleParam = (opt.role || '').replace(/'/g, "\\'");
         const itemParam = (opt.item || '').replace(/'/g, "\\'");
@@ -447,8 +458,9 @@ function updateMessage(id, text, suggestedOptions) {
 
       parsedContent += `
         <div class="chat-arcade-buttons">
-          <div style="width: 100%; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-yellow); margin-bottom: 4px;">
-            🕹️ Pulsa para incorporar a tu equipo:
+          <div style="width: 100%; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent-yellow); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+            <span>🕹️ Fichar para Slot #${nextSlot} de ${targetSize}:</span>
+            <span style="background: rgba(0,0,0,0.45); padding: 2px 8px; border-radius: 4px; color: #55f3a0; font-size: 0.72rem; border: 1px solid rgba(255,255,255,0.15);">Faltan ${faltan}</span>
           </div>
           ${buttonsHtml}
         </div>
@@ -531,20 +543,21 @@ async function addSuggestedPokemon(name, role, item, ability, btnElement) {
     inspectPokemon(name);
 
     // Dynamic chained recruitment flow:
-    // If team building is active and the team hasn't reached target yet, automatically prompt for the next slot!
-    if (teamBuildState.active && currentTeamList.length < teamBuildState.targetSize) {
+    const target = Math.min(6, teamBuildState.targetSize || 6);
+    const faltan = Math.max(0, target - currentTeamList.length);
+
+    if (teamBuildState.active && currentTeamList.length < target && currentTeamList.length < 6) {
       const nextSlot = currentTeamList.length + 1;
-      const target = teamBuildState.targetSize;
       const arch = teamBuildState.archetype || "defensivo";
 
-      appendMessage("user", `✅ ¡Fichado **${name}**! Dame ahora las mejores opciones para el **Slot #${nextSlot} de ${target}** (${arch}).`);
+      appendMessage("user", `✅ ¡Fichado **${name}**! Equipo: ${currentTeamList.length}/${target} (Faltan ${faltan} miembros). Dame opciones para el **Slot #${nextSlot}** (${arch}).`);
       
-      const queryNext = `He sumado a ${name} a mi equipo. Mi equipo ahora tiene ${currentTeamList.length}/${target} miembros. Recomiéndame las 3 mejores opciones de sinergia para el Slot #${nextSlot} de ${target} de mi equipo ${arch}.`;
+      const queryNext = `He sumado a ${name} a mi equipo. Mi equipo ahora tiene ${currentTeamList.length}/${target} miembros (faltan exactamente ${faltan} para completar el equipo de ${target}). Recomiéndame las 3 mejores opciones de sinergia para el Slot #${nextSlot} de mi equipo ${arch}.`;
       await requestNextTeamSlot(queryNext);
 
-    } else if (teamBuildState.active && currentTeamList.length >= teamBuildState.targetSize) {
+    } else if (currentTeamList.length >= target || currentTeamList.length >= 6) {
       teamBuildState.active = false;
-      appendMessage("bot", `🏆 **¡EQUIPO COMPLETADO (${currentTeamList.length}/${teamBuildState.targetSize})!**\n\n¡Menuda formación legendaria acabamos de montar, hermano! Tienes las debilidades compensadas al máximo y roles defensivos y ofensivos claros. Ya puedes pulsar en **'📋 Showdown'** para exportar tu equipo listo para competir.`);
+      appendMessage("bot", `🏆 **¡EQUIPO COMPLETADO (${currentTeamList.length}/6)!**\n\n¡Menuda formación legendaria acabamos de montar, hermano! Hemos alcanzado el tope máximo de 6 miembros reglamentarios y la sinergia está 100% blindada. Pulsa en **'📋 Showdown'** para exportar tu equipo listo para competir.`);
     } else {
       appendMessage("bot", `⚡ ¡Fichaje de élite confirmado! He sumado a **${name}** a tu formación táctica (${currentTeamList.length}/6). Si quieres seguir completando el equipo, dime qué otra necesidad tienes o pídemelo.`);
     }
@@ -860,6 +873,10 @@ const ALL_TYPES = [
 ];
 
 async function openBuilderModal() {
+  if (currentTeamList && currentTeamList.length >= 6) {
+    alert("⚠️ Tu equipo ya tiene el máximo permitido de 6 Pokémon. Debes eliminar uno antes de poder añadir otro.");
+    return;
+  }
   const modal = document.getElementById("builder-modal");
   modal.style.display = "flex";
   

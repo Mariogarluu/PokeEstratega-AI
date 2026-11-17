@@ -14,6 +14,7 @@ from engine.pbs_parser import PBSParser
 from engine.type_chart import TypeChart, SPANISH_TYPE_NAMES, TYPE_COLORS
 from engine.showdown import ShowdownExporter
 from engine.indexing import get_vectorstore
+from engine.team_store import TeamStore
 from graph.state import PokeState
 
 ENV_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
@@ -23,6 +24,7 @@ load_dotenv()
 parser = PBSParser()
 type_chart = TypeChart(parser.types)
 exporter = ShowdownExporter(parser)
+team_store = TeamStore(parser)
 
 # Pre-compile a map of lowercase names for instant detection
 POKEMON_NAMES_MAP = {name.lower(): p for name, p in parser.pokemon.items() if len(name) > 2}
@@ -92,7 +94,24 @@ def classify_intent_node(state: PokeState) -> Dict[str, Any]:
         (any(s in query for s in suggest_stems) and any(w in query for w in ["equipo", "team", "compañero", "compañeros", "opcion", "opciones", "siguiente", "fichaje", "lineup", "crear", "muro", "defensivo", "ofensivo", "terminar", "completar", "asco", "slot", "resto"]))
     )
 
-    if any(k in query for k in ["showdown", "exportar", "paste", "copiar equipo"]):
+    save_stems = [
+        "guardar equipo", "guarda este equipo", "guarda mi equipo", "guarda el equipo",
+        "salva el equipo", "archiva este equipo", "registra este equipo", "guardar en biblioteca",
+        "guarda como", "guardalo como", "guárdalo como"
+    ]
+    library_stems = [
+        "biblioteca", "equipos guardados", "equipo guardado", "recomienda un equipo guardado",
+        "busca un equipo guardado", "tienes algún equipo de", "tienes algun equipo de",
+        "equipo de la biblioteca", "equipos de la biblioteca", "algún equipo guardado",
+        "algun equipo guardado", "recomiendame un equipo guardado", "recomiéndame un equipo guardado",
+        "recomiendame un equipo de la biblioteca", "recomiéndame un equipo de la biblioteca"
+    ]
+
+    if any(k in query for k in save_stems):
+        intent = "save_team"
+    elif any(k in query for k in library_stems):
+        intent = "library_search"
+    elif any(k in query for k in ["showdown", "exportar", "paste", "copiar equipo"]):
         intent = "showdown_export"
     elif any(k in query for k in remove_stems) and (detected or any(w in query for w in ["equipo", "team", "lineup", "este", "ese", "miembro"])):
         intent = "remove_team"
@@ -257,6 +276,41 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
                         team.append(entry)
                         system_notes.append(f"🔄 Se ha incorporado a **{pkmn['name']}** en su lugar ({len(team)}/6).")
 
+    suggested_team_load = None
+
+    if intent == "save_team":
+        if len(team) == 6:
+            custom_name = "Mi Formación de Torneo"
+            m = re.search(r'(?:como|nombre|titulado)\s+[\'"]?([a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-_]+)[\'"]?', state.get("query", ""), re.IGNORECASE)
+            if m:
+                extracted = m.group(1).strip()
+                if len(extracted) >= 3 and not any(w == extracted.lower() for w in ["un", "el", "este", "equipo", "pokemon", "para"]):
+                    custom_name = extracted.capitalize()
+            try:
+                saved = team_store.save_team(custom_name, team)
+                system_notes.append(f"💾 **¡Equipo '{saved['name']}' registrado y vectorizado con éxito en la Biblioteca!** (ID: {saved['id']}).")
+            except Exception as e:
+                system_notes.append(f"⚠️ Error al guardar en la base vectorial: {str(e)}")
+        else:
+            system_notes.append(f"⚠️ Tu alineación actual tiene {len(team)}/6 miembros. Para guardarlo en la biblioteca, el reglamento exige completar los 6 miembros primero.")
+
+    elif intent == "library_search":
+        search_query = state.get("query", "")
+        for trig in ["recomiendame un equipo guardado", "recomiéndame un equipo guardado", "busca un equipo en la biblioteca", "de la biblioteca", "equipo guardado", "equipos guardados", "biblioteca", "recomiendame un equipo", "recomiéndame un equipo"]:
+            search_query = search_query.lower().replace(trig, "")
+        search_query = search_query.strip() or "equipo competitivo"
+
+        results = team_store.search_teams_semantic(search_query, top_k=2)
+        if results:
+            best = results[0]
+            suggested_team_load = {
+                "id": best["id"],
+                "name": best["name"],
+                "archetype": best["archetype"],
+                "members": [p["name"] for p in best["members"]]
+            }
+            system_notes.append(f"\n### 📚 Equipo encontrado en la Biblioteca Vectorial:\n🏆 **{best['name']}** ({best['archetype']})\n📝 {best['description']}\n⚔️ Miembros: {', '.join(p['name'] for p in best['members'])}\n💡 *El usuario puede pulsar el botón de abajo para cargar este equipo en su alineación activa y tunearlo a medida.*")
+
     # Determine target size (capped at 6)
     target_size = 6
     for num_w, val in [("1", 1), ("2", 2), ("pareja", 2), ("duo", 2), ("3", 3), ("trio", 3), ("trío", 3), ("tres", 3), ("4", 4), ("cuatro", 4), ("5", 5), ("cinco", 5), ("6", 6), ("seis", 6)]:
@@ -308,7 +362,8 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
     return {
         "team": team,
         "context": "\n".join(context_parts),
-        "suggested_options": suggested_options
+        "suggested_options": suggested_options,
+        "suggested_team_load": suggested_team_load
     }
 
 def showdown_node(state: PokeState) -> Dict[str, Any]:
@@ -359,6 +414,9 @@ ESTADO DEL EQUIPO DEL USUARIO:
 ACCIONES REALIZADAS EN ESTE TURNO:
 - Si en los DATOS EXACTOS aparece '✅ Se ha añadido a...', confirma con orgullo y tu energía habitual que el Pokémon ya ha sido metido en el equipo. Celébralo como un fichaje god tier y sugiere de inmediato la siguiente pieza clave para cubrir sus debilidades.
 - Si en los DATOS EXACTOS aparece '❌ Se ha eliminado a...' o '❌ Se ha retirado a...': confirma con orgullo táctico y sin admitir debilidad que lo has mandado al banquillo o al lobby ('¡Te estaba testeando los reflejos tácticos a ver si estabas despierto en el vestuario!'). Y si figuran 'Top 3 Opciones para sustituir a ese miembro', presenta los candidatos y anímale a pulsar uno de los botones interactivos de abajo para cubrir esa vacante y sellar la rotación.
+- Si en los DATOS EXACTOS aparece '💾 **¡Equipo' o 'registrado y vectorizado con éxito': felicita con orgullo pro al usuario por cerrar su alineación y dejarla archivada en la bóveda de la biblioteca vectorial.
+- Si en los DATOS EXACTOS aparece '📚 Equipo encontrado en la Biblioteca Vectorial': presenta con energía el equipo rescatado de la base vectorial, explica por qué encaja con lo que busca y anímale a pulsar el botón interactivo de abajo para cargarlo en su formación activa y tunearlo como un pro.
+- Si en los DATOS EXACTOS aparece '⚠️ Tu alineación actual tiene ...': vacílale con humor sano recordando que en el competitivo un equipo de torneo se archiva al 6/6, y que aún le faltan miembros para cerrarlo.
 - Si en los DATOS EXACTOS aparecen 'Top 3 Opciones de Sinergia':
   Presenta las opciones con tu energía pro (1 frase impactante por opción explicando por qué da asco al rival o cubre las debilidades del equipo).
   Dile al usuario que pulse cualquiera de los botones interactivos de abajo para incorporar al que prefiera.

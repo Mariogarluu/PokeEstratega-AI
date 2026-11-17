@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PokeEstratega-AI | Coach de Combate & Teambuilder</title>
-  <link rel="stylesheet" href="/static/style.css?v=c7">
+  <link rel="stylesheet" href="/static/style.css?v=c8">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
@@ -90,6 +90,12 @@
           </button>
           <button class="action-btn primary" onclick="openTeamBoardModal()">
             <span>👁️ Ver Equipo</span>
+          </button>
+          <button class="action-btn" id="btn-save-team-action" onclick="openSaveTeamModal()">
+            <span>💾 Guardar</span>
+          </button>
+          <button class="action-btn" onclick="openLibraryModal()">
+            <span>📚 Biblioteca</span>
           </button>
           <button class="action-btn" onclick="openShowdownModal()">
             <span>📋 Showdown</span>
@@ -302,6 +308,70 @@
     </div>
   </div>
 
-  <script src="/static/app.js?v=c9"></script>
+  <!-- Modal: Guardar Equipo -->
+  <div class="modal-overlay" id="save-team-modal">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 style="color:#fff; display:flex; align-items:center; gap:8px;">
+          <span>💾 Guardar Formación en la Biblioteca</span>
+        </h3>
+        <button onclick="closeSaveTeamModal()" class="modal-close-btn">✕</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">
+        Asigna un nombre a tu equipo de 6 miembros. Se generará un vector semántico con sus sinergias para poder buscarlo o cargarlo en cualquier momento.
+      </p>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem; font-weight:800; color:var(--accent-yellow); text-transform:uppercase; display:block; margin-bottom:6px;">Nombre del Equipo:</label>
+        <input type="text" id="save-team-name-input" class="chat-input" placeholder="ej: Muralla de Añil, Lluvia Torrencial..." autocomplete="off">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:6px;">Notas Tácticas (Opcional):</label>
+        <textarea id="save-team-notes-input" class="chat-input" style="height:70px; resize:none;" placeholder="ej: Equipo pensado para frenar sweepers de dragón y tierra con desgastes continuos..."></textarea>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="action-btn" onclick="closeSaveTeamModal()">Cancelar</button>
+        <button class="action-btn success" onclick="confirmSaveTeam()">
+          <span>⚔️ Registrar y Vectorizar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Biblioteca Vectorial de Equipos -->
+  <div class="modal-overlay" id="library-modal">
+    <div class="modal-content library-modal-content" style="max-width: 980px; width: 95vw; max-height: 90vh; display:flex; flex-direction:column; overflow:hidden;">
+      <div class="modal-header" style="flex-shrink:0;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <h3 style="color:#fff; display:flex; align-items:center; gap:8px; font-size:1.15rem;">
+            <span>📚 Biblioteca Vectorial de Equipos</span>
+          </h3>
+          <span id="library-count-badge" style="background:#232a3f; color:var(--accent-cyan); font-weight:800; padding:2px 8px; border-radius:4px; border:1px solid #000; font-size:0.75rem;">0 equipos</span>
+        </div>
+        <button onclick="closeLibraryModal()" class="modal-close-btn">✕</button>
+      </div>
+
+      <!-- Semantic Search Bar -->
+      <div style="margin-bottom:14px; flex-shrink:0;">
+        <div style="position:relative;">
+          <input type="text" id="library-search-input" class="chat-input" placeholder="🔍 Búsqueda semántica por IA: busca por estrategia, estilo o Pokémon (ej: lluvia, stall defensivo, counter hielo)..." oninput="debounceLibrarySearch()">
+        </div>
+      </div>
+
+      <!-- Teams Grid Container -->
+      <div class="library-teams-grid" id="library-teams-grid" style="flex:1; overflow-y:auto; padding-right:4px;">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Library Modal Footer -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:12px; border-top:2px solid #000; flex-shrink:0;">
+        <div style="font-size:0.78rem; color:var(--text-secondary);">
+          💡 <em>Haz clic en <strong>'⚡ Cargar en Equipo'</strong> para importar la formación y editarla a tu gusto.</em>
+        </div>
+        <button class="action-btn" onclick="closeLibraryModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js?v=c11"></script>
 </body>
 </html>

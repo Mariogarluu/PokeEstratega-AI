@@ -1,0 +1,3325 @@
+[
+  {
+    "id": "team-fa89e4a0",
+    "name": "Mi Lluvia Personalizada",
+    "archetype": "Defensivo (Stall)",
+    "description": "Formación competitiva Defensivo (Stall) de 6 miembros. Debilidades compartidas: Ninguna crítica.",
+    "members": [
+      {
+        "id": 279,
+        "name": "Pelipper",
+        "internal_name": "PELIPPER",
+        "type1": "WATER",
+        "type2": "FLYING",
+        "base_stats": {
+          "hp": 80,
+          "attack": 50,
+          "defense": 100,
+          "speed": 65,
+          "sp_attack": 95,
+          "sp_defense": 70
+        },
+        "bst": 460,
+        "abilities": [
+          "KEENEYE",
+          "DRIZZLE"
+        ],
+        "hidden_ability": "RAINDISH",
+        "moves": [
+          {
+            "level": 1,
+            "move": "SOAK"
+          },
+          {
+            "level": 1,
+            "move": "GROWL"
+          },
+          {
+            "level": 1,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 1,
+            "move": "WATERSPORT"
+          },
+          {
+            "level": 1,
+            "move": "WINGATTACK"
+          },
+          {
+            "level": 6,
+            "move": "SUPERSONIC"
+          },
+          {
+            "level": 9,
+            "move": "WINGATTACK"
+          },
+          {
+            "level": 14,
+            "move": "MIST"
+          },
+          {
+            "level": 17,
+            "move": "WATERPULSE"
+          },
+          {
+            "level": 22,
+            "move": "PAYBACK"
+          },
+          {
+            "level": 25,
+            "move": "PROTECT"
+          },
+          {
+            "level": 28,
+            "move": "ROOST"
+          },
+          {
+            "level": 34,
+            "move": "BRINE"
+          },
+          {
+            "level": 39,
+            "move": "STOCKPILE"
+          },
+          {
+            "level": 39,
+            "move": "SWALLOW"
+          },
+          {
+            "level": 39,
+            "move": "SPITUP"
+          },
+          {
+            "level": 46,
+            "move": "KNOCKOFF"
+          },
+          {
+            "level": 52,
+            "move": "TAILWIND"
+          },
+          {
+            "level": 58,
+            "move": "HYDROPUMP"
+          },
+          {
+            "level": 63,
+            "move": "HURRICANE"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Water Bird",
+        "pokedex": "It skims the tops of waves as it flies. When it spots prey, it uses its large beak to scoop up the victim with water. It protects its eggs in its beak.",
+        "height": 1.2,
+        "weight": 28.0,
+        "color": "Yellow",
+        "habitat": "Sea",
+        "role": "Pivote Táctico",
+        "nature": "Osada",
+        "item": "Roca Lluvia",
+        "ability": "Llovizna",
+        "moves_custom": [
+          "Hidrobomba",
+          "Vendaval",
+          "Protección",
+          "Escupir"
+        ],
+        "moves_details": [
+          {
+            "name": "Hidrobomba",
+            "type": "Agua",
+            "category": "Special",
+            "power": 110,
+            "accuracy": 80
+          },
+          {
+            "name": "Vendaval",
+            "type": "Volador",
+            "category": "Special",
+            "power": 110,
+            "accuracy": 70
+          },
+          {
+            "name": "Protección",
+            "type": "Normal",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 0
+          },
+          {
+            "name": "Escupir",
+            "type": "Normal",
+            "category": "Special",
+            "power": 1,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 260,
+        "name": "Swampert",
+        "internal_name": "SWAMPERT",
+        "type1": "WATER",
+        "type2": "GROUND",
+        "base_stats": {
+          "hp": 100,
+          "attack": 110,
+          "defense": 90,
+          "speed": 60,
+          "sp_attack": 85,
+          "sp_defense": 90
+        },
+        "bst": 535,
+        "abilities": [
+          "TORRENT"
+        ],
+        "hidden_ability": "DAMP",
+        "moves": [
+          {
+            "level": 1,
+            "move": "TACKLE"
+          },
+          {
+            "level": 1,
+            "move": "GROWL"
+          },
+          {
+            "level": 1,
+            "move": "MUDSLAP"
+          },
+          {
+            "level": 1,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 6,
+            "move": "MUDSLAP"
+          },
+          {
+            "level": 10,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 15,
+            "move": "TACKLE"
+          },
+          {
+            "level": 16,
+            "move": "MUDSHOT"
+          },
+          {
+            "level": 20,
+            "move": "FORESIGHT"
+          },
+          {
+            "level": 25,
+            "move": "MUDBOMB"
+          },
+          {
+            "level": 31,
+            "move": "TAKEDOWN"
+          },
+          {
+            "level": 39,
+            "move": "MUDDYWATER"
+          },
+          {
+            "level": 46,
+            "move": "CURSE"
+          },
+          {
+            "level": 52,
+            "move": "EARTHQUAKE"
+          },
+          {
+            "level": 61,
+            "move": "ENDEAVOR"
+          },
+          {
+            "level": 69,
+            "move": "HAMMERARM"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Mud Fish",
+        "pokedex": "If it senses the approach of a storm and a tidal wave, it protects its seaside nest by piling up boulders. It swims as fast as a jet ski.",
+        "height": 1.5,
+        "weight": 81.9,
+        "color": "Blue",
+        "habitat": "WatersEdge",
+        "role": "Atacante Físico",
+        "nature": "Firme",
+        "item": "Vidasfera",
+        "ability": "Nado Rápido",
+        "moves_custom": [
+          "Terremoto",
+          "Machada",
+          "Derribo",
+          "Placaje"
+        ],
+        "moves_details": [
+          {
+            "name": "Terremoto",
+            "type": "Tierra",
+            "category": "Physical",
+            "power": 100,
+            "accuracy": 100
+          },
+          {
+            "name": "Machada",
+            "type": "Lucha",
+            "category": "Physical",
+            "power": 100,
+            "accuracy": 90
+          },
+          {
+            "name": "Derribo",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 90,
+            "accuracy": 85
+          },
+          {
+            "name": "Placaje",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 40,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 145,
+        "name": "Zapdos",
+        "internal_name": "ZAPDOS",
+        "type1": "ELECTRIC",
+        "type2": "FLYING",
+        "base_stats": {
+          "hp": 90,
+          "attack": 90,
+          "defense": 85,
+          "speed": 100,
+          "sp_attack": 125,
+          "sp_defense": 90
+        },
+        "bst": 580,
+        "abilities": [
+          "PRESSURE"
+        ],
+        "hidden_ability": "LIGHTNINGROD",
+        "moves": [
+          {
+            "level": 1,
+            "move": "PECK"
+          },
+          {
+            "level": 1,
+            "move": "THUNDERSHOCK"
+          },
+          {
+            "level": 8,
+            "move": "THUNDERWAVE"
+          },
+          {
+            "level": 15,
+            "move": "DETECT"
+          },
+          {
+            "level": 22,
+            "move": "PLUCK"
+          },
+          {
+            "level": 29,
+            "move": "ANCIENTPOWER"
+          },
+          {
+            "level": 36,
+            "move": "CHARGE"
+          },
+          {
+            "level": 43,
+            "move": "AGILITY"
+          },
+          {
+            "level": 50,
+            "move": "DISCHARGE"
+          },
+          {
+            "level": 57,
+            "move": "ROOST"
+          },
+          {
+            "level": 64,
+            "move": "LIGHTSCREEN"
+          },
+          {
+            "level": 71,
+            "move": "DRILLPECK"
+          },
+          {
+            "level": 78,
+            "move": "THUNDER"
+          },
+          {
+            "level": 85,
+            "move": "RAINDANCE"
+          },
+          {
+            "level": 92,
+            "move": "ZAPCANNON"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Electric",
+        "pokedex": "Zapdos is a legendary bird Pokémon that has the ability to control electricity. It usually lives in thunderclouds. It gains power if it is stricken by lightning bolts.",
+        "height": 1.6,
+        "weight": 52.6,
+        "color": "Yellow",
+        "habitat": "Rare",
+        "role": "Atacante Especial",
+        "nature": "Modesta",
+        "item": "Botas Gruesas",
+        "ability": "Electricidad Estática",
+        "moves_custom": [
+          "Electrocañón",
+          "Trueno",
+          "Onda Trueno",
+          "Poder Pasado"
+        ],
+        "moves_details": [
+          {
+            "name": "Electrocañón",
+            "type": "Eléctrico",
+            "category": "Special",
+            "power": 120,
+            "accuracy": 50
+          },
+          {
+            "name": "Trueno",
+            "type": "Eléctrico",
+            "category": "Special",
+            "power": 110,
+            "accuracy": 70
+          },
+          {
+            "name": "Onda Trueno",
+            "type": "Eléctrico",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 90
+          },
+          {
+            "name": "Poder Pasado",
+            "type": "Roca",
+            "category": "Special",
+            "power": 60,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 212,
+        "name": "Scizor",
+        "internal_name": "SCIZOR",
+        "type1": "BUG",
+        "type2": "STEEL",
+        "base_stats": {
+          "hp": 70,
+          "attack": 130,
+          "defense": 100,
+          "speed": 65,
+          "sp_attack": 55,
+          "sp_defense": 80
+        },
+        "bst": 500,
+        "abilities": [
+          "SWARM",
+          "TECHNICIAN"
+        ],
+        "hidden_ability": "LIGHTMETAL",
+        "moves": [
+          {
+            "level": 1,
+            "move": "BULLETPUNCH"
+          },
+          {
+            "level": 1,
+            "move": "QUICKATTACK"
+          },
+          {
+            "level": 1,
+            "move": "LEER"
+          },
+          {
+            "level": 5,
+            "move": "FOCUSENERGY"
+          },
+          {
+            "level": 9,
+            "move": "PURSUIT"
+          },
+          {
+            "level": 13,
+            "move": "FALSESWIPE"
+          },
+          {
+            "level": 17,
+            "move": "AGILITY"
+          },
+          {
+            "level": 21,
+            "move": "METALCLAW"
+          },
+          {
+            "level": 25,
+            "move": "FURYCUTTER"
+          },
+          {
+            "level": 29,
+            "move": "SLASH"
+          },
+          {
+            "level": 33,
+            "move": "RAZORWIND"
+          },
+          {
+            "level": 37,
+            "move": "IRONDEFENSE"
+          },
+          {
+            "level": 41,
+            "move": "XSCISSOR"
+          },
+          {
+            "level": 45,
+            "move": "NIGHTSLASH"
+          },
+          {
+            "level": 49,
+            "move": "DOUBLEHIT"
+          },
+          {
+            "level": 53,
+            "move": "IRONHEAD"
+          },
+          {
+            "level": 57,
+            "move": "SWORDSDANCE"
+          },
+          {
+            "level": 61,
+            "move": "FEINT"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Pincer",
+        "pokedex": "A Scizor has a body with the hardness of steel. It is not easily fazed by ordinary sorts of attacks. It flaps its wings to regulate its body temperature.",
+        "height": 1.8,
+        "weight": 118.0,
+        "color": "Red",
+        "habitat": "Grassland",
+        "role": "Atacante Físico",
+        "nature": "Firme",
+        "item": "Cinta Elegida",
+        "ability": "Experto",
+        "moves_custom": [
+          "Tijera X",
+          "Cabezahierro",
+          "Agilidad",
+          "Cuchillada"
+        ],
+        "moves_details": [
+          {
+            "name": "Tijera X",
+            "type": "Bicho",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          },
+          {
+            "name": "Cabezahierro",
+            "type": "Acero",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          },
+          {
+            "name": "Agilidad",
+            "type": "Psíquico",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 0
+          },
+          {
+            "name": "Cuchillada",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 70,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 230,
+        "name": "Kingdra",
+        "internal_name": "KINGDRA",
+        "type1": "WATER",
+        "type2": "DRAGON",
+        "base_stats": {
+          "hp": 75,
+          "attack": 95,
+          "defense": 95,
+          "speed": 85,
+          "sp_attack": 95,
+          "sp_defense": 95
+        },
+        "bst": 540,
+        "abilities": [
+          "SWIFTSWIM",
+          "SNIPER"
+        ],
+        "hidden_ability": "DAMP",
+        "moves": [
+          {
+            "level": 1,
+            "move": "SCALESHOT"
+          },
+          {
+            "level": 1,
+            "move": "YAWN"
+          },
+          {
+            "level": 1,
+            "move": "BUBBLE"
+          },
+          {
+            "level": 1,
+            "move": "SMOKESCREEN"
+          },
+          {
+            "level": 1,
+            "move": "LEER"
+          },
+          {
+            "level": 1,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 4,
+            "move": "SMOKESCREEN"
+          },
+          {
+            "level": 8,
+            "move": "LEER"
+          },
+          {
+            "level": 11,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 14,
+            "move": "FOCUSENERGY"
+          },
+          {
+            "level": 18,
+            "move": "BUBBLEBEAM"
+          },
+          {
+            "level": 23,
+            "move": "AGILITY"
+          },
+          {
+            "level": 26,
+            "move": "TWISTER"
+          },
+          {
+            "level": 30,
+            "move": "BRINE"
+          },
+          {
+            "level": 35,
+            "move": "SNIPESHOT"
+          },
+          {
+            "level": 40,
+            "move": "HYDROPUMP"
+          },
+          {
+            "level": 48,
+            "move": "DRAGONDANCE"
+          },
+          {
+            "level": 57,
+            "move": "DRAGONPULSE"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Dragon",
+        "pokedex": "It sleeps quietly, deep on the seafloor. When it comes up to the surface, it creates a huge whirlpool that can swallow even ships.",
+        "height": 1.8,
+        "weight": 152.0,
+        "color": "Blue",
+        "habitat": "Sea",
+        "role": "Atacante Especial Rápido",
+        "nature": "Modesta",
+        "item": "Gafas Especiales",
+        "ability": "Nado Rápido",
+        "moves_custom": [
+          "Hidrobomba",
+          "Pulso Dragón",
+          "Agilidad",
+          "Disparo Certero"
+        ],
+        "moves_details": [
+          {
+            "name": "Hidrobomba",
+            "type": "Agua",
+            "category": "Special",
+            "power": 110,
+            "accuracy": 80
+          },
+          {
+            "name": "Pulso Dragón",
+            "type": "Dragón",
+            "category": "Special",
+            "power": 85,
+            "accuracy": 100
+          },
+          {
+            "name": "Agilidad",
+            "type": "Psíquico",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 0
+          },
+          {
+            "name": "Disparo Certero",
+            "type": "Agua",
+            "category": "Special",
+            "power": 80,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 598,
+        "name": "Ferrothorn",
+        "internal_name": "FERROTHORN",
+        "type1": "GRASS",
+        "type2": "STEEL",
+        "base_stats": {
+          "hp": 74,
+          "attack": 94,
+          "defense": 131,
+          "speed": 20,
+          "sp_attack": 54,
+          "sp_defense": 116
+        },
+        "bst": 489,
+        "abilities": [
+          "IRONBARBS"
+        ],
+        "hidden_ability": null,
+        "moves": [
+          {
+            "level": 1,
+            "move": "ROCKCLIMB"
+          },
+          {
+            "level": 1,
+            "move": "TACKLE"
+          },
+          {
+            "level": 1,
+            "move": "HARDEN"
+          },
+          {
+            "level": 1,
+            "move": "ROLLOUT"
+          },
+          {
+            "level": 1,
+            "move": "CURSE"
+          },
+          {
+            "level": 6,
+            "move": "ROLLOUT"
+          },
+          {
+            "level": 9,
+            "move": "CURSE"
+          },
+          {
+            "level": 12,
+            "move": "SNAPTRAP"
+          },
+          {
+            "level": 14,
+            "move": "METALCLAW"
+          },
+          {
+            "level": 18,
+            "move": "PINMISSILE"
+          },
+          {
+            "level": 21,
+            "move": "GYROBALL"
+          },
+          {
+            "level": 26,
+            "move": "IRONDEFENSE"
+          },
+          {
+            "level": 30,
+            "move": "MIRRORSHOT"
+          },
+          {
+            "level": 35,
+            "move": "INGRAIN"
+          },
+          {
+            "level": 38,
+            "move": "SELFDESTRUCT"
+          },
+          {
+            "level": 40,
+            "move": "POWERWHIP"
+          },
+          {
+            "level": 46,
+            "move": "IRONHEAD"
+          },
+          {
+            "level": 53,
+            "move": "PAYBACK"
+          },
+          {
+            "level": 61,
+            "move": "FLASHCANNON"
+          },
+          {
+            "level": 67,
+            "move": "EXPLOSION"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Thorn Pod",
+        "pokedex": "They attach themselves to cave ceilings, firing steel spikes at targets passing beneath them.",
+        "height": 1.0,
+        "weight": 110.0,
+        "color": "Gray",
+        "habitat": "",
+        "role": "Tanque Defensivo",
+        "nature": "Plácida",
+        "item": "Restos",
+        "ability": "Punta Acero",
+        "moves_custom": [
+          "Explosión",
+          "Autodestru.",
+          "Latigazo",
+          "Foco Respl."
+        ],
+        "moves_details": [
+          {
+            "name": "Explosión",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 250,
+            "accuracy": 100
+          },
+          {
+            "name": "Autodestru.",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 200,
+            "accuracy": 100
+          },
+          {
+            "name": "Latigazo",
+            "type": "Planta",
+            "category": "Physical",
+            "power": 120,
+            "accuracy": 85
+          },
+          {
+            "name": "Foco Respl.",
+            "type": "Acero",
+            "category": "Special",
+            "power": 80,
+            "accuracy": 100
+          }
+        ]
+      }
+    ],
+    "showdown_paste": "Pelipper @ Roca Lluvia\nAbility: Drizzle\nEVs: 252 HP / 252 Def / 4 SpD\nBold Nature\n- Hidrobomba\n- Vendaval\n- Protección\n- Escupir\n\nSwampert @ Life Orb\nAbility: Swiftswim\nEVs: 252 HP / 252 Atk / 4 Spe\nAdamant Nature\n- Terremoto\n- Machada\n- Derribo\n- Placaje\n\nZapdos @ Heavy-Duty Boots\nAbility: Electricidad Estática\nEVs: 252 SpA / 4 SpD / 252 Spe\nModest Nature\n- Electrocañón\n- Trueno\n- Onda Trueno\n- Poder Pasado\n\nScizor @ Cinta Elegida\nAbility: Technician\nEVs: 252 HP / 252 Atk / 4 Spe\nAdamant Nature\n- Tijera X\n- Cabezahierro\n- Agilidad\n- Cuchillada\n\nKingdra @ Gafas Especiales\nAbility: Swiftswim\nEVs: 252 SpA / 4 SpD / 252 Spe\nModest Nature\n- Hidrobomba\n- Pulso Dragón\n- Agilidad\n- Disparo Certero\n\nFerrothorn @ Leftovers\nAbility: Ironbarbs\nEVs: 252 HP / 252 Atk / 4 Spe\nRelaxed Nature\n- Explosión\n- Autodestru.\n- Latigazo\n- Foco Respl.",
+    "created_at": "2026-11-17T15:23:42.241655+00:00",
+    "is_starter": false
+  },
+  {
+    "id": "starter-stall-anil",
+    "name": "Stall Añil (Muro Infranqueable)",
+    "archetype": "Defensivo (Stall)",
+    "description": "Alineación ultra defensiva orientada a desgastar al rival por daño residual, trampas y regeneración pasiva. Muro físico con Garchomp y Toxapex, muro especial con Chansey y Corviknight, e inmunidades clave a Tierra, Fuego y Eléctrico.",
+    "members": [
+      {
+        "id": 445,
+        "name": "Garchomp",
+        "internal_name": "GARCHOMP",
+        "type1": "DRAGON",
+        "type2": "GROUND",
+        "base_stats": {
+          "hp": 108,
+          "attack": 130,
+          "defense": 95,
+          "speed": 102,
+          "sp_attack": 80,
+          "sp_defense": 85
+        },
+        "bst": 600,
+        "abilities": [
+          "SANDVEIL"
+        ],
+        "hidden_ability": "ROUGHSKIN",
+        "moves": [
+          {
+            "level": 1,
+            "move": "FIREFANG"
+          },
+          {
+            "level": 1,
+            "move": "TACKLE"
+          },
+          {
+            "level": 1,
+            "move": "SANDATTACK"
+          },
+          {
+            "level": 1,
+            "move": "DRAGONRAGE"
+          },
+          {
+            "level": 1,
+            "move": "SANDSTORM"
+          },
+          {
+            "level": 3,
+            "move": "SANDATTACK"
+          },
+          {
+            "level": 7,
+            "move": "DRAGONRAGE"
+          },
+          {
+            "level": 13,
+            "move": "SANDSTORM"
+          },
+          {
+            "level": 15,
+            "move": "TAKEDOWN"
+          },
+          {
+            "level": 19,
+            "move": "SANDTOMB"
+          },
+          {
+            "level": 24,
+            "move": "DUALCHOP"
+          },
+          {
+            "level": 28,
+            "move": "SLASH"
+          },
+          {
+            "level": 33,
+            "move": "DRAGONCLAW"
+          },
+          {
+            "level": 40,
+            "move": "BULLDOZE"
+          },
+          {
+            "level": 48,
+            "move": "CRUNCH"
+          },
+          {
+            "level": 55,
+            "move": "DRAGONRUSH"
+          },
+          {
+            "level": 60,
+            "move": "SCALESHOT"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Mach",
+        "pokedex": "When it folds up its body and extends its wings, it looks like a jet plane. It flies at sonic speed.",
+        "height": 1.9,
+        "weight": 95.0,
+        "color": "Blue",
+        "habitat": "",
+        "role": "Muralla Física",
+        "nature": "Agitada",
+        "item": "Restos",
+        "ability": "Piel Rugosa",
+        "moves_custom": [
+          "Carga Dragón",
+          "Derribo",
+          "Garra Dragón",
+          "Triturar"
+        ],
+        "moves_details": [
+          {
+            "name": "Carga Dragón",
+            "type": "Dragón",
+            "category": "Physical",
+            "power": 100,
+            "accuracy": 75
+          },
+          {
+            "name": "Derribo",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 90,
+            "accuracy": 85
+          },
+          {
+            "name": "Garra Dragón",
+            "type": "Dragón",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          },
+          {
+            "name": "Triturar",
+            "type": "Siniestro",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 823,
+        "name": "Corviknight",
+        "internal_name": "CORVIKNIGHT",
+        "type1": "FLYING",
+        "type2": "STEEL",
+        "base_stats": {
+          "hp": 98,
+          "attack": 87,
+          "defense": 105,
+          "speed": 67,
+          "sp_attack": 53,
+          "sp_defense": 85
+        },
+        "bst": 495,
+        "abilities": [
+          "PRESSURE",
+          "UNNERVE"
+        ],
+        "hidden_ability": "MIRRORARMOR",
+        "moves": [
+          {
+            "level": 1,
+            "move": "STEELWING"
+          },
+          {
+            "level": 1,
+            "move": "PECK"
+          },
+          {
+            "level": 1,
+            "move": "LEER"
+          },
+          {
+            "level": 1,
+            "move": "SANDATTACK"
+          },
+          {
+            "level": 1,
+            "move": "HONECLAWS"
+          },
+          {
+            "level": 10,
+            "move": "CHULERIA"
+          },
+          {
+            "level": 12,
+            "move": "FURYATTACK"
+          },
+          {
+            "level": 16,
+            "move": "PLUCK"
+          },
+          {
+            "level": 22,
+            "move": "TAUNT"
+          },
+          {
+            "level": 24,
+            "move": "DRILLPECK"
+          },
+          {
+            "level": 28,
+            "move": "SCARYFACE"
+          },
+          {
+            "level": 36,
+            "move": "BODYPRESS"
+          },
+          {
+            "level": 42,
+            "move": "SWAGGER"
+          },
+          {
+            "level": 50,
+            "move": "BRAVEBIRD"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Cuervo",
+        "pokedex": "No tiene rival en los cielos. El acero negro y lustroso de su cuerpo intimida a cualquier adversario.",
+        "height": 2.2,
+        "weight": 75.0,
+        "color": "Purple",
+        "habitat": "Forest",
+        "role": "Muralla Especial",
+        "nature": "Serena",
+        "item": "Restos",
+        "ability": "Coraza Reflejo",
+        "moves_custom": [
+          "Pájaro Osado",
+          "Pico Taladro",
+          "Mofa",
+          "Plancha Corporal"
+        ],
+        "moves_details": [
+          {
+            "name": "Pájaro Osado",
+            "type": "Volador",
+            "category": "Physical",
+            "power": 120,
+            "accuracy": 100
+          },
+          {
+            "name": "Pico Taladro",
+            "type": "Volador",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          },
+          {
+            "name": "Mofa",
+            "type": "Siniestro",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 100
+          },
+          {
+            "name": "Plancha Corporal",
+            "type": "Lucha",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 748,
+        "name": "Toxapex",
+        "internal_name": "TOXAPEX",
+        "type1": "POISON",
+        "type2": "WATER",
+        "base_stats": {
+          "hp": 50,
+          "attack": 63,
+          "defense": 152,
+          "speed": 35,
+          "sp_attack": 53,
+          "sp_defense": 142
+        },
+        "bst": 495,
+        "abilities": [
+          "MERCILESS",
+          "LIMBER"
+        ],
+        "hidden_ability": "REGENERATOR",
+        "moves": [
+          {
+            "level": 1,
+            "move": "PROTECT"
+          },
+          {
+            "level": 1,
+            "move": "POISONSTING"
+          },
+          {
+            "level": 5,
+            "move": "PECK"
+          },
+          {
+            "level": 9,
+            "move": "BITE"
+          },
+          {
+            "level": 13,
+            "move": "TOXICSPIKES"
+          },
+          {
+            "level": 17,
+            "move": "WIDEGUARD"
+          },
+          {
+            "level": 21,
+            "move": "TOXIC"
+          },
+          {
+            "level": 25,
+            "move": "VENOSHOCK"
+          },
+          {
+            "level": 29,
+            "move": "SPIKECANNON"
+          },
+          {
+            "level": 33,
+            "move": "RECOVER"
+          },
+          {
+            "level": 35,
+            "move": "HIDROARIETE"
+          },
+          {
+            "level": 37,
+            "move": "POISONJAB"
+          },
+          {
+            "level": 38,
+            "move": "BANEFULBUNKER"
+          },
+          {
+            "level": 40,
+            "move": "VENOMDRENCH"
+          },
+          {
+            "level": 44,
+            "move": "SLUDGEBOMB"
+          },
+          {
+            "level": 51,
+            "move": "PINMISSILE"
+          },
+          {
+            "level": 58,
+            "move": "AQUATAIL"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Brutal Star",
+        "pokedex": "It crawls along the ocean floor on its 12 legs. It leaves a trail of Corsola bits scattered in its wake.",
+        "height": 0.7,
+        "weight": 14.5,
+        "color": "Blue",
+        "habitat": "Sea",
+        "role": "Tanque Físico",
+        "nature": "Osada",
+        "item": "Lodo Negro",
+        "ability": "Ensañamiento",
+        "moves_custom": [
+          "Acua Cola",
+          "Hidroariete",
+          "Protección",
+          "Mordisco"
+        ],
+        "moves_details": [
+          {
+            "name": "Acua Cola",
+            "type": "Agua",
+            "category": "Physical",
+            "power": 95,
+            "accuracy": 90
+          },
+          {
+            "name": "Hidroariete",
+            "type": "Agua",
+            "category": "Physical",
+            "power": 85,
+            "accuracy": 100
+          },
+          {
+            "name": "Protección",
+            "type": "Normal",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 0
+          },
+          {
+            "name": "Mordisco",
+            "type": "Siniestro",
+            "category": "Physical",
+            "power": 60,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 113,
+        "name": "Chansey",
+        "internal_name": "CHANSEY",
+        "type1": "NORMAL",
+        "type2": null,
+        "base_stats": {
+          "hp": 250,
+          "attack": 5,
+          "defense": 5,
+          "speed": 50,
+          "sp_attack": 35,
+          "sp_defense": 105
+        },
+        "bst": 450,
+        "abilities": [
+          "NATURALCURE",
+          "SERENEGRACE"
+        ],
+        "hidden_ability": "HEALER",
+        "moves": [
+          {
+            "level": 1,
+            "move": "DEFENSECURL"
+          },
+          {
+            "level": 1,
+            "move": "POUND"
+          },
+          {
+            "level": 1,
+            "move": "GROWL"
+          },
+          {
+            "level": 5,
+            "move": "TAILWHIP"
+          },
+          {
+            "level": 9,
+            "move": "REFRESH"
+          },
+          {
+            "level": 12,
+            "move": "DOUBLESLAP"
+          },
+          {
+            "level": 16,
+            "move": "SOFTBOILED"
+          },
+          {
+            "level": 20,
+            "move": "BESTOW"
+          },
+          {
+            "level": 23,
+            "move": "HEALPULSE"
+          },
+          {
+            "level": 27,
+            "move": "TAKEDOWN"
+          },
+          {
+            "level": 31,
+            "move": "SING"
+          },
+          {
+            "level": 34,
+            "move": "KNOCKOFF"
+          },
+          {
+            "level": 38,
+            "move": "MINIMIZE"
+          },
+          {
+            "level": 42,
+            "move": "EGGBOMB"
+          },
+          {
+            "level": 46,
+            "move": "LIGHTSCREEN"
+          },
+          {
+            "level": 50,
+            "move": "HEALINGWISH"
+          },
+          {
+            "level": 54,
+            "move": "DOUBLEEDGE"
+          }
+        ],
+        "egg_moves": [
+          "AROMATHERAPY",
+          "COUNTER",
+          "ENDURE",
+          "GRAVITY",
+          "HEALBELL",
+          "HELPINGHAND",
+          "METRONOME",
+          "MUDBOMB",
+          "BULLETSEED",
+          "PRESENT"
+        ],
+        "kind": "Egg",
+        "pokedex": "Chansey lay nutritionally excellent eggs every day. The eggs are so delicious, they are eagerly devoured by even those who have lost their appetite.",
+        "height": 1.1,
+        "weight": 34.6,
+        "color": "Pink",
+        "habitat": "Urban",
+        "role": "Muralla Especial",
+        "nature": "Serena",
+        "item": "Mineral Evolutivo",
+        "ability": "Cura Natural",
+        "moves_custom": [
+          "Doble Filo",
+          "Bomba Huevo",
+          "Ovocuración",
+          "Bomba Fango"
+        ],
+        "moves_details": [
+          {
+            "name": "Doble Filo",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 120,
+            "accuracy": 100
+          },
+          {
+            "name": "Bomba Huevo",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 100,
+            "accuracy": 75
+          },
+          {
+            "name": "Ovocuración",
+            "type": "Normal",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 0
+          },
+          {
+            "name": "Bomba Fango",
+            "type": "Tierra",
+            "category": "Special",
+            "power": 65,
+            "accuracy": 95
+          }
+        ]
+      },
+      {
+        "id": 472,
+        "name": "Gliscor",
+        "internal_name": "GLISCOR",
+        "type1": "GROUND",
+        "type2": "FLYING",
+        "base_stats": {
+          "hp": 75,
+          "attack": 95,
+          "defense": 125,
+          "speed": 95,
+          "sp_attack": 45,
+          "sp_defense": 75
+        },
+        "bst": 510,
+        "abilities": [
+          "HYPERCUTTER",
+          "SANDVEIL"
+        ],
+        "hidden_ability": "POISONHEAL",
+        "moves": [
+          {
+            "level": 1,
+            "move": "THUNDERFANG"
+          },
+          {
+            "level": 1,
+            "move": "ICEFANG"
+          },
+          {
+            "level": 1,
+            "move": "FIREFANG"
+          },
+          {
+            "level": 1,
+            "move": "POISONJAB"
+          },
+          {
+            "level": 1,
+            "move": "SANDATTACK"
+          },
+          {
+            "level": 1,
+            "move": "HARDEN"
+          },
+          {
+            "level": 1,
+            "move": "KNOCKOFF"
+          },
+          {
+            "level": 4,
+            "move": "SANDATTACK"
+          },
+          {
+            "level": 7,
+            "move": "HARDEN"
+          },
+          {
+            "level": 10,
+            "move": "KNOCKOFF"
+          },
+          {
+            "level": 13,
+            "move": "QUICKATTACK"
+          },
+          {
+            "level": 16,
+            "move": "FURYCUTTER"
+          },
+          {
+            "level": 19,
+            "move": "FAINTATTACK"
+          },
+          {
+            "level": 22,
+            "move": "ACROBATICS"
+          },
+          {
+            "level": 27,
+            "move": "NIGHTSLASH"
+          },
+          {
+            "level": 30,
+            "move": "UTURN"
+          },
+          {
+            "level": 35,
+            "move": "SCREECH"
+          },
+          {
+            "level": 40,
+            "move": "XSCISSOR"
+          },
+          {
+            "level": 45,
+            "move": "SKYUPPERCUT"
+          },
+          {
+            "level": 50,
+            "move": "SWORDSDANCE"
+          },
+          {
+            "level": 55,
+            "move": "GUILLOTINE"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Fang Scorp",
+        "pokedex": "It observes prey while hanging inverted from branches. When the chance presents itself, it swoops!",
+        "height": 2.0,
+        "weight": 42.5,
+        "color": "Purple",
+        "habitat": "",
+        "role": "Rompemuros Físico",
+        "nature": "Agitada",
+        "item": "Toxisfera",
+        "ability": "Antídoto",
+        "moves_custom": [
+          "Acróbata",
+          "Danza Espada",
+          "Gancho Alto",
+          "Puya Nociva"
+        ],
+        "moves_details": [
+          {
+            "name": "Acróbata",
+            "type": "Volador",
+            "category": "Physical",
+            "power": 55,
+            "accuracy": 100
+          },
+          {
+            "name": "Danza Espada",
+            "type": "Normal",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 0
+          },
+          {
+            "name": "Gancho Alto",
+            "type": "Lucha",
+            "category": "Physical",
+            "power": 85,
+            "accuracy": 95
+          },
+          {
+            "name": "Puya Nociva",
+            "type": "Veneno",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 598,
+        "name": "Ferrothorn",
+        "internal_name": "FERROTHORN",
+        "type1": "GRASS",
+        "type2": "STEEL",
+        "base_stats": {
+          "hp": 74,
+          "attack": 94,
+          "defense": 131,
+          "speed": 20,
+          "sp_attack": 54,
+          "sp_defense": 116
+        },
+        "bst": 489,
+        "abilities": [
+          "IRONBARBS"
+        ],
+        "hidden_ability": null,
+        "moves": [
+          {
+            "level": 1,
+            "move": "ROCKCLIMB"
+          },
+          {
+            "level": 1,
+            "move": "TACKLE"
+          },
+          {
+            "level": 1,
+            "move": "HARDEN"
+          },
+          {
+            "level": 1,
+            "move": "ROLLOUT"
+          },
+          {
+            "level": 1,
+            "move": "CURSE"
+          },
+          {
+            "level": 6,
+            "move": "ROLLOUT"
+          },
+          {
+            "level": 9,
+            "move": "CURSE"
+          },
+          {
+            "level": 12,
+            "move": "SNAPTRAP"
+          },
+          {
+            "level": 14,
+            "move": "METALCLAW"
+          },
+          {
+            "level": 18,
+            "move": "PINMISSILE"
+          },
+          {
+            "level": 21,
+            "move": "GYROBALL"
+          },
+          {
+            "level": 26,
+            "move": "IRONDEFENSE"
+          },
+          {
+            "level": 30,
+            "move": "MIRRORSHOT"
+          },
+          {
+            "level": 35,
+            "move": "INGRAIN"
+          },
+          {
+            "level": 38,
+            "move": "SELFDESTRUCT"
+          },
+          {
+            "level": 40,
+            "move": "POWERWHIP"
+          },
+          {
+            "level": 46,
+            "move": "IRONHEAD"
+          },
+          {
+            "level": 53,
+            "move": "PAYBACK"
+          },
+          {
+            "level": 61,
+            "move": "FLASHCANNON"
+          },
+          {
+            "level": 67,
+            "move": "EXPLOSION"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Thorn Pod",
+        "pokedex": "They attach themselves to cave ceilings, firing steel spikes at targets passing beneath them.",
+        "height": 1.0,
+        "weight": 110.0,
+        "color": "Gray",
+        "habitat": "",
+        "role": "Pone-Trampas",
+        "nature": "Plácida",
+        "item": "Casco Dentado",
+        "ability": "Punta Acero",
+        "moves_custom": [
+          "Foco Respl.",
+          "Disp. Espejo"
+        ],
+        "moves_details": [
+          {
+            "name": "Foco Respl.",
+            "type": "Acero",
+            "category": "Special",
+            "power": 80,
+            "accuracy": 100
+          },
+          {
+            "name": "Disp. Espejo",
+            "type": "Acero",
+            "category": "Special",
+            "power": 65,
+            "accuracy": 85
+          }
+        ]
+      }
+    ],
+    "created_at": "2026-11-17T12:00:00Z",
+    "is_starter": true,
+    "showdown_paste": "Garchomp @ Leftovers\nAbility: Piel Rugosa\nEVs: 252 Atk / 4 SpD / 252 Spe\nImpish Nature\n- Carga Dragón\n- Derribo\n- Garra Dragón\n- Triturar\n\nCorviknight @ Leftovers\nAbility: Mirrorarmor\nEVs: 252 HP / 252 Def / 4 SpD\nCalm Nature\n- Pájaro Osado\n- Pico Taladro\n- Mofa\n- Plancha Corporal\n\nToxapex @ Black Sludge\nAbility: Merciless\nEVs: 252 HP / 252 Atk / 4 Spe\nBold Nature\n- Acua Cola\n- Hidroariete\n- Protección\n- Mordisco\n\nChansey @ Eviolite\nAbility: Naturalcure\nEVs: 252 HP / 4 Def / 252 SpD\nCalm Nature\n- Doble Filo\n- Bomba Huevo\n- Ovocuración\n- Bomba Fango\n\nGliscor @ Toxic Orb\nAbility: Poisonheal\nEVs: 252 Atk / 4 SpD / 252 Spe\nImpish Nature\n- Acróbata\n- Danza Espada\n- Gancho Alto\n- Puya Nociva\n\nFerrothorn @ Rocky Helmet\nAbility: Ironbarbs\nEVs: 252 HP / 252 Atk / 4 Spe\nRelaxed Nature\n- Foco Respl.\n- Disp. Espejo"
+  },
+  {
+    "id": "starter-rain-team",
+    "name": "Hyper Offense Lluvia (Marea Torrencial)",
+    "archetype": "Ofensivo (Lluvia)",
+    "description": "Equipo de clima basado en Llovizna con Pelipper para duplicar la velocidad de Swampert y Kingdra bajo agua con Nado Rápido. Cobertura brutal con Truenos certeros de Zapdos y prioridad demoledora de Scizor.",
+    "members": [
+      {
+        "id": 279,
+        "name": "Pelipper",
+        "internal_name": "PELIPPER",
+        "type1": "WATER",
+        "type2": "FLYING",
+        "base_stats": {
+          "hp": 80,
+          "attack": 50,
+          "defense": 100,
+          "speed": 65,
+          "sp_attack": 95,
+          "sp_defense": 70
+        },
+        "bst": 460,
+        "abilities": [
+          "KEENEYE",
+          "DRIZZLE"
+        ],
+        "hidden_ability": "RAINDISH",
+        "moves": [
+          {
+            "level": 1,
+            "move": "SOAK"
+          },
+          {
+            "level": 1,
+            "move": "GROWL"
+          },
+          {
+            "level": 1,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 1,
+            "move": "WATERSPORT"
+          },
+          {
+            "level": 1,
+            "move": "WINGATTACK"
+          },
+          {
+            "level": 6,
+            "move": "SUPERSONIC"
+          },
+          {
+            "level": 9,
+            "move": "WINGATTACK"
+          },
+          {
+            "level": 14,
+            "move": "MIST"
+          },
+          {
+            "level": 17,
+            "move": "WATERPULSE"
+          },
+          {
+            "level": 22,
+            "move": "PAYBACK"
+          },
+          {
+            "level": 25,
+            "move": "PROTECT"
+          },
+          {
+            "level": 28,
+            "move": "ROOST"
+          },
+          {
+            "level": 34,
+            "move": "BRINE"
+          },
+          {
+            "level": 39,
+            "move": "STOCKPILE"
+          },
+          {
+            "level": 39,
+            "move": "SWALLOW"
+          },
+          {
+            "level": 39,
+            "move": "SPITUP"
+          },
+          {
+            "level": 46,
+            "move": "KNOCKOFF"
+          },
+          {
+            "level": 52,
+            "move": "TAILWIND"
+          },
+          {
+            "level": 58,
+            "move": "HYDROPUMP"
+          },
+          {
+            "level": 63,
+            "move": "HURRICANE"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Water Bird",
+        "pokedex": "It skims the tops of waves as it flies. When it spots prey, it uses its large beak to scoop up the victim with water. It protects its eggs in its beak.",
+        "height": 1.2,
+        "weight": 28.0,
+        "color": "Yellow",
+        "habitat": "Sea",
+        "role": "Pivote Táctico",
+        "nature": "Osada",
+        "item": "Roca Lluvia",
+        "ability": "Llovizna",
+        "moves_custom": [
+          "Hidrobomba",
+          "Vendaval",
+          "Protección",
+          "Escupir"
+        ],
+        "moves_details": [
+          {
+            "name": "Hidrobomba",
+            "type": "Agua",
+            "category": "Special",
+            "power": 110,
+            "accuracy": 80
+          },
+          {
+            "name": "Vendaval",
+            "type": "Volador",
+            "category": "Special",
+            "power": 110,
+            "accuracy": 70
+          },
+          {
+            "name": "Protección",
+            "type": "Normal",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 0
+          },
+          {
+            "name": "Escupir",
+            "type": "Normal",
+            "category": "Special",
+            "power": 1,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 260,
+        "name": "Swampert",
+        "internal_name": "SWAMPERT",
+        "type1": "WATER",
+        "type2": "GROUND",
+        "base_stats": {
+          "hp": 100,
+          "attack": 110,
+          "defense": 90,
+          "speed": 60,
+          "sp_attack": 85,
+          "sp_defense": 90
+        },
+        "bst": 535,
+        "abilities": [
+          "TORRENT"
+        ],
+        "hidden_ability": "DAMP",
+        "moves": [
+          {
+            "level": 1,
+            "move": "TACKLE"
+          },
+          {
+            "level": 1,
+            "move": "GROWL"
+          },
+          {
+            "level": 1,
+            "move": "MUDSLAP"
+          },
+          {
+            "level": 1,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 6,
+            "move": "MUDSLAP"
+          },
+          {
+            "level": 10,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 15,
+            "move": "TACKLE"
+          },
+          {
+            "level": 16,
+            "move": "MUDSHOT"
+          },
+          {
+            "level": 20,
+            "move": "FORESIGHT"
+          },
+          {
+            "level": 25,
+            "move": "MUDBOMB"
+          },
+          {
+            "level": 31,
+            "move": "TAKEDOWN"
+          },
+          {
+            "level": 39,
+            "move": "MUDDYWATER"
+          },
+          {
+            "level": 46,
+            "move": "CURSE"
+          },
+          {
+            "level": 52,
+            "move": "EARTHQUAKE"
+          },
+          {
+            "level": 61,
+            "move": "ENDEAVOR"
+          },
+          {
+            "level": 69,
+            "move": "HAMMERARM"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Mud Fish",
+        "pokedex": "If it senses the approach of a storm and a tidal wave, it protects its seaside nest by piling up boulders. It swims as fast as a jet ski.",
+        "height": 1.5,
+        "weight": 81.9,
+        "color": "Blue",
+        "habitat": "WatersEdge",
+        "role": "Atacante Físico",
+        "nature": "Firme",
+        "item": "Vidasfera",
+        "ability": "Nado Rápido",
+        "moves_custom": [
+          "Terremoto",
+          "Machada",
+          "Derribo",
+          "Placaje"
+        ],
+        "moves_details": [
+          {
+            "name": "Terremoto",
+            "type": "Tierra",
+            "category": "Physical",
+            "power": 100,
+            "accuracy": 100
+          },
+          {
+            "name": "Machada",
+            "type": "Lucha",
+            "category": "Physical",
+            "power": 100,
+            "accuracy": 90
+          },
+          {
+            "name": "Derribo",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 90,
+            "accuracy": 85
+          },
+          {
+            "name": "Placaje",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 40,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 145,
+        "name": "Zapdos",
+        "internal_name": "ZAPDOS",
+        "type1": "ELECTRIC",
+        "type2": "FLYING",
+        "base_stats": {
+          "hp": 90,
+          "attack": 90,
+          "defense": 85,
+          "speed": 100,
+          "sp_attack": 125,
+          "sp_defense": 90
+        },
+        "bst": 580,
+        "abilities": [
+          "PRESSURE"
+        ],
+        "hidden_ability": "LIGHTNINGROD",
+        "moves": [
+          {
+            "level": 1,
+            "move": "PECK"
+          },
+          {
+            "level": 1,
+            "move": "THUNDERSHOCK"
+          },
+          {
+            "level": 8,
+            "move": "THUNDERWAVE"
+          },
+          {
+            "level": 15,
+            "move": "DETECT"
+          },
+          {
+            "level": 22,
+            "move": "PLUCK"
+          },
+          {
+            "level": 29,
+            "move": "ANCIENTPOWER"
+          },
+          {
+            "level": 36,
+            "move": "CHARGE"
+          },
+          {
+            "level": 43,
+            "move": "AGILITY"
+          },
+          {
+            "level": 50,
+            "move": "DISCHARGE"
+          },
+          {
+            "level": 57,
+            "move": "ROOST"
+          },
+          {
+            "level": 64,
+            "move": "LIGHTSCREEN"
+          },
+          {
+            "level": 71,
+            "move": "DRILLPECK"
+          },
+          {
+            "level": 78,
+            "move": "THUNDER"
+          },
+          {
+            "level": 85,
+            "move": "RAINDANCE"
+          },
+          {
+            "level": 92,
+            "move": "ZAPCANNON"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Electric",
+        "pokedex": "Zapdos is a legendary bird Pokémon that has the ability to control electricity. It usually lives in thunderclouds. It gains power if it is stricken by lightning bolts.",
+        "height": 1.6,
+        "weight": 52.6,
+        "color": "Yellow",
+        "habitat": "Rare",
+        "role": "Atacante Especial",
+        "nature": "Modesta",
+        "item": "Botas Gruesas",
+        "ability": "Electricidad Estática",
+        "moves_custom": [
+          "Electrocañón",
+          "Trueno",
+          "Onda Trueno",
+          "Poder Pasado"
+        ],
+        "moves_details": [
+          {
+            "name": "Electrocañón",
+            "type": "Eléctrico",
+            "category": "Special",
+            "power": 120,
+            "accuracy": 50
+          },
+          {
+            "name": "Trueno",
+            "type": "Eléctrico",
+            "category": "Special",
+            "power": 110,
+            "accuracy": 70
+          },
+          {
+            "name": "Onda Trueno",
+            "type": "Eléctrico",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 90
+          },
+          {
+            "name": "Poder Pasado",
+            "type": "Roca",
+            "category": "Special",
+            "power": 60,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 212,
+        "name": "Scizor",
+        "internal_name": "SCIZOR",
+        "type1": "BUG",
+        "type2": "STEEL",
+        "base_stats": {
+          "hp": 70,
+          "attack": 130,
+          "defense": 100,
+          "speed": 65,
+          "sp_attack": 55,
+          "sp_defense": 80
+        },
+        "bst": 500,
+        "abilities": [
+          "SWARM",
+          "TECHNICIAN"
+        ],
+        "hidden_ability": "LIGHTMETAL",
+        "moves": [
+          {
+            "level": 1,
+            "move": "BULLETPUNCH"
+          },
+          {
+            "level": 1,
+            "move": "QUICKATTACK"
+          },
+          {
+            "level": 1,
+            "move": "LEER"
+          },
+          {
+            "level": 5,
+            "move": "FOCUSENERGY"
+          },
+          {
+            "level": 9,
+            "move": "PURSUIT"
+          },
+          {
+            "level": 13,
+            "move": "FALSESWIPE"
+          },
+          {
+            "level": 17,
+            "move": "AGILITY"
+          },
+          {
+            "level": 21,
+            "move": "METALCLAW"
+          },
+          {
+            "level": 25,
+            "move": "FURYCUTTER"
+          },
+          {
+            "level": 29,
+            "move": "SLASH"
+          },
+          {
+            "level": 33,
+            "move": "RAZORWIND"
+          },
+          {
+            "level": 37,
+            "move": "IRONDEFENSE"
+          },
+          {
+            "level": 41,
+            "move": "XSCISSOR"
+          },
+          {
+            "level": 45,
+            "move": "NIGHTSLASH"
+          },
+          {
+            "level": 49,
+            "move": "DOUBLEHIT"
+          },
+          {
+            "level": 53,
+            "move": "IRONHEAD"
+          },
+          {
+            "level": 57,
+            "move": "SWORDSDANCE"
+          },
+          {
+            "level": 61,
+            "move": "FEINT"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Pincer",
+        "pokedex": "A Scizor has a body with the hardness of steel. It is not easily fazed by ordinary sorts of attacks. It flaps its wings to regulate its body temperature.",
+        "height": 1.8,
+        "weight": 118.0,
+        "color": "Red",
+        "habitat": "Grassland",
+        "role": "Atacante Físico",
+        "nature": "Firme",
+        "item": "Cinta Elegida",
+        "ability": "Experto",
+        "moves_custom": [
+          "Tijera X",
+          "Cabezahierro",
+          "Agilidad",
+          "Cuchillada"
+        ],
+        "moves_details": [
+          {
+            "name": "Tijera X",
+            "type": "Bicho",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          },
+          {
+            "name": "Cabezahierro",
+            "type": "Acero",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          },
+          {
+            "name": "Agilidad",
+            "type": "Psíquico",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 0
+          },
+          {
+            "name": "Cuchillada",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 70,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 230,
+        "name": "Kingdra",
+        "internal_name": "KINGDRA",
+        "type1": "WATER",
+        "type2": "DRAGON",
+        "base_stats": {
+          "hp": 75,
+          "attack": 95,
+          "defense": 95,
+          "speed": 85,
+          "sp_attack": 95,
+          "sp_defense": 95
+        },
+        "bst": 540,
+        "abilities": [
+          "SWIFTSWIM",
+          "SNIPER"
+        ],
+        "hidden_ability": "DAMP",
+        "moves": [
+          {
+            "level": 1,
+            "move": "SCALESHOT"
+          },
+          {
+            "level": 1,
+            "move": "YAWN"
+          },
+          {
+            "level": 1,
+            "move": "BUBBLE"
+          },
+          {
+            "level": 1,
+            "move": "SMOKESCREEN"
+          },
+          {
+            "level": 1,
+            "move": "LEER"
+          },
+          {
+            "level": 1,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 4,
+            "move": "SMOKESCREEN"
+          },
+          {
+            "level": 8,
+            "move": "LEER"
+          },
+          {
+            "level": 11,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 14,
+            "move": "FOCUSENERGY"
+          },
+          {
+            "level": 18,
+            "move": "BUBBLEBEAM"
+          },
+          {
+            "level": 23,
+            "move": "AGILITY"
+          },
+          {
+            "level": 26,
+            "move": "TWISTER"
+          },
+          {
+            "level": 30,
+            "move": "BRINE"
+          },
+          {
+            "level": 35,
+            "move": "SNIPESHOT"
+          },
+          {
+            "level": 40,
+            "move": "HYDROPUMP"
+          },
+          {
+            "level": 48,
+            "move": "DRAGONDANCE"
+          },
+          {
+            "level": 57,
+            "move": "DRAGONPULSE"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Dragon",
+        "pokedex": "It sleeps quietly, deep on the seafloor. When it comes up to the surface, it creates a huge whirlpool that can swallow even ships.",
+        "height": 1.8,
+        "weight": 152.0,
+        "color": "Blue",
+        "habitat": "Sea",
+        "role": "Atacante Especial Rápido",
+        "nature": "Modesta",
+        "item": "Gafas Especiales",
+        "ability": "Nado Rápido",
+        "moves_custom": [
+          "Hidrobomba",
+          "Pulso Dragón",
+          "Agilidad",
+          "Disparo Certero"
+        ],
+        "moves_details": [
+          {
+            "name": "Hidrobomba",
+            "type": "Agua",
+            "category": "Special",
+            "power": 110,
+            "accuracy": 80
+          },
+          {
+            "name": "Pulso Dragón",
+            "type": "Dragón",
+            "category": "Special",
+            "power": 85,
+            "accuracy": 100
+          },
+          {
+            "name": "Agilidad",
+            "type": "Psíquico",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 0
+          },
+          {
+            "name": "Disparo Certero",
+            "type": "Agua",
+            "category": "Special",
+            "power": 80,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 598,
+        "name": "Ferrothorn",
+        "internal_name": "FERROTHORN",
+        "type1": "GRASS",
+        "type2": "STEEL",
+        "base_stats": {
+          "hp": 74,
+          "attack": 94,
+          "defense": 131,
+          "speed": 20,
+          "sp_attack": 54,
+          "sp_defense": 116
+        },
+        "bst": 489,
+        "abilities": [
+          "IRONBARBS"
+        ],
+        "hidden_ability": null,
+        "moves": [
+          {
+            "level": 1,
+            "move": "ROCKCLIMB"
+          },
+          {
+            "level": 1,
+            "move": "TACKLE"
+          },
+          {
+            "level": 1,
+            "move": "HARDEN"
+          },
+          {
+            "level": 1,
+            "move": "ROLLOUT"
+          },
+          {
+            "level": 1,
+            "move": "CURSE"
+          },
+          {
+            "level": 6,
+            "move": "ROLLOUT"
+          },
+          {
+            "level": 9,
+            "move": "CURSE"
+          },
+          {
+            "level": 12,
+            "move": "SNAPTRAP"
+          },
+          {
+            "level": 14,
+            "move": "METALCLAW"
+          },
+          {
+            "level": 18,
+            "move": "PINMISSILE"
+          },
+          {
+            "level": 21,
+            "move": "GYROBALL"
+          },
+          {
+            "level": 26,
+            "move": "IRONDEFENSE"
+          },
+          {
+            "level": 30,
+            "move": "MIRRORSHOT"
+          },
+          {
+            "level": 35,
+            "move": "INGRAIN"
+          },
+          {
+            "level": 38,
+            "move": "SELFDESTRUCT"
+          },
+          {
+            "level": 40,
+            "move": "POWERWHIP"
+          },
+          {
+            "level": 46,
+            "move": "IRONHEAD"
+          },
+          {
+            "level": 53,
+            "move": "PAYBACK"
+          },
+          {
+            "level": 61,
+            "move": "FLASHCANNON"
+          },
+          {
+            "level": 67,
+            "move": "EXPLOSION"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Thorn Pod",
+        "pokedex": "They attach themselves to cave ceilings, firing steel spikes at targets passing beneath them.",
+        "height": 1.0,
+        "weight": 110.0,
+        "color": "Gray",
+        "habitat": "",
+        "role": "Tanque Defensivo",
+        "nature": "Plácida",
+        "item": "Restos",
+        "ability": "Punta Acero",
+        "moves_custom": [
+          "Explosión",
+          "Autodestru.",
+          "Latigazo",
+          "Foco Respl."
+        ],
+        "moves_details": [
+          {
+            "name": "Explosión",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 250,
+            "accuracy": 100
+          },
+          {
+            "name": "Autodestru.",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 200,
+            "accuracy": 100
+          },
+          {
+            "name": "Latigazo",
+            "type": "Planta",
+            "category": "Physical",
+            "power": 120,
+            "accuracy": 85
+          },
+          {
+            "name": "Foco Respl.",
+            "type": "Acero",
+            "category": "Special",
+            "power": 80,
+            "accuracy": 100
+          }
+        ]
+      }
+    ],
+    "created_at": "2026-11-17T12:05:00Z",
+    "is_starter": true,
+    "showdown_paste": "Pelipper @ Roca Lluvia\nAbility: Drizzle\nEVs: 252 HP / 252 Def / 4 SpD\nBold Nature\n- Hidrobomba\n- Vendaval\n- Protección\n- Escupir\n\nSwampert @ Life Orb\nAbility: Swiftswim\nEVs: 252 HP / 252 Atk / 4 Spe\nAdamant Nature\n- Terremoto\n- Machada\n- Derribo\n- Placaje\n\nZapdos @ Heavy-Duty Boots\nAbility: Electricidad Estática\nEVs: 252 SpA / 4 SpD / 252 Spe\nModest Nature\n- Electrocañón\n- Trueno\n- Onda Trueno\n- Poder Pasado\n\nScizor @ Cinta Elegida\nAbility: Technician\nEVs: 252 HP / 252 Atk / 4 Spe\nAdamant Nature\n- Tijera X\n- Cabezahierro\n- Agilidad\n- Cuchillada\n\nKingdra @ Gafas Especiales\nAbility: Swiftswim\nEVs: 252 SpA / 4 SpD / 252 Spe\nModest Nature\n- Hidrobomba\n- Pulso Dragón\n- Agilidad\n- Disparo Certero\n\nFerrothorn @ Leftovers\nAbility: Ironbarbs\nEVs: 252 HP / 252 Atk / 4 Spe\nRelaxed Nature\n- Explosión\n- Autodestru.\n- Latigazo\n- Foco Respl."
+  },
+  {
+    "id": "starter-bulky-balance",
+    "name": "Bulky Balance (Meta Sólido)",
+    "archetype": "Equilibrado (Balance)",
+    "description": "Estructura competitiva balanceada con capacidad de absorber golpes y responder con daño masivo. Heatran y Clefable frenan atacantes especiales, Slowbro y Corviknight neutralizan atacantes físicos, y Garchomp y Weavile rematan la partida.",
+    "members": [
+      {
+        "id": 445,
+        "name": "Garchomp",
+        "internal_name": "GARCHOMP",
+        "type1": "DRAGON",
+        "type2": "GROUND",
+        "base_stats": {
+          "hp": 108,
+          "attack": 130,
+          "defense": 95,
+          "speed": 102,
+          "sp_attack": 80,
+          "sp_defense": 85
+        },
+        "bst": 600,
+        "abilities": [
+          "SANDVEIL"
+        ],
+        "hidden_ability": "ROUGHSKIN",
+        "moves": [
+          {
+            "level": 1,
+            "move": "FIREFANG"
+          },
+          {
+            "level": 1,
+            "move": "TACKLE"
+          },
+          {
+            "level": 1,
+            "move": "SANDATTACK"
+          },
+          {
+            "level": 1,
+            "move": "DRAGONRAGE"
+          },
+          {
+            "level": 1,
+            "move": "SANDSTORM"
+          },
+          {
+            "level": 3,
+            "move": "SANDATTACK"
+          },
+          {
+            "level": 7,
+            "move": "DRAGONRAGE"
+          },
+          {
+            "level": 13,
+            "move": "SANDSTORM"
+          },
+          {
+            "level": 15,
+            "move": "TAKEDOWN"
+          },
+          {
+            "level": 19,
+            "move": "SANDTOMB"
+          },
+          {
+            "level": 24,
+            "move": "DUALCHOP"
+          },
+          {
+            "level": 28,
+            "move": "SLASH"
+          },
+          {
+            "level": 33,
+            "move": "DRAGONCLAW"
+          },
+          {
+            "level": 40,
+            "move": "BULLDOZE"
+          },
+          {
+            "level": 48,
+            "move": "CRUNCH"
+          },
+          {
+            "level": 55,
+            "move": "DRAGONRUSH"
+          },
+          {
+            "level": 60,
+            "move": "SCALESHOT"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Mach",
+        "pokedex": "When it folds up its body and extends its wings, it looks like a jet plane. It flies at sonic speed.",
+        "height": 1.9,
+        "weight": 95.0,
+        "color": "Blue",
+        "habitat": "",
+        "role": "Atacante Físico",
+        "nature": "Alegre",
+        "item": "Vidasfera",
+        "ability": "Piel Rugosa",
+        "moves_custom": [
+          "Carga Dragón",
+          "Garra Dragón",
+          "Derribo",
+          "Triturar"
+        ],
+        "moves_details": [
+          {
+            "name": "Carga Dragón",
+            "type": "Dragón",
+            "category": "Physical",
+            "power": 100,
+            "accuracy": 75
+          },
+          {
+            "name": "Garra Dragón",
+            "type": "Dragón",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          },
+          {
+            "name": "Derribo",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 90,
+            "accuracy": 85
+          },
+          {
+            "name": "Triturar",
+            "type": "Siniestro",
+            "category": "Physical",
+            "power": 80,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 485,
+        "name": "Heatran",
+        "internal_name": "HEATRAN",
+        "type1": "FIRE",
+        "type2": "STEEL",
+        "base_stats": {
+          "hp": 91,
+          "attack": 90,
+          "defense": 106,
+          "speed": 77,
+          "sp_attack": 130,
+          "sp_defense": 106
+        },
+        "bst": 600,
+        "abilities": [
+          "FLASHFIRE"
+        ],
+        "hidden_ability": "FLAMEBODY",
+        "moves": [
+          {
+            "level": 1,
+            "move": "ANCIENTPOWER"
+          },
+          {
+            "level": 9,
+            "move": "LEER"
+          },
+          {
+            "level": 17,
+            "move": "FIREFANG"
+          },
+          {
+            "level": 25,
+            "move": "METALSOUND"
+          },
+          {
+            "level": 33,
+            "move": "CRUNCH"
+          },
+          {
+            "level": 41,
+            "move": "SCARYFACE"
+          },
+          {
+            "level": 49,
+            "move": "LAVAPLUME"
+          },
+          {
+            "level": 57,
+            "move": "FIRESPIN"
+          },
+          {
+            "level": 65,
+            "move": "IRONHEAD"
+          },
+          {
+            "level": 73,
+            "move": "EARTHPOWER"
+          },
+          {
+            "level": 81,
+            "move": "HEATWAVE"
+          },
+          {
+            "level": 88,
+            "move": "STONEEDGE"
+          },
+          {
+            "level": 96,
+            "move": "MAGMASTORM"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Lava Dome",
+        "pokedex": "It dwells in volcanic caves. It digs in with its cross-shaped feet to crawl on ceilings and walls.",
+        "height": 1.7,
+        "weight": 430.0,
+        "color": "Brown",
+        "habitat": "",
+        "role": "Tanque Especial",
+        "nature": "Modesta",
+        "item": "Restos",
+        "ability": "Absorbe Fuego",
+        "moves_custom": [
+          "Lluvia Ígnea",
+          "Onda Ígnea",
+          "Tierra Viva",
+          "Poder Pasado"
+        ],
+        "moves_details": [
+          {
+            "name": "Lluvia Ígnea",
+            "type": "Fuego",
+            "category": "Special",
+            "power": 100,
+            "accuracy": 75
+          },
+          {
+            "name": "Onda Ígnea",
+            "type": "Fuego",
+            "category": "Special",
+            "power": 95,
+            "accuracy": 90
+          },
+          {
+            "name": "Tierra Viva",
+            "type": "Tierra",
+            "category": "Special",
+            "power": 90,
+            "accuracy": 100
+          },
+          {
+            "name": "Poder Pasado",
+            "type": "Roca",
+            "category": "Special",
+            "power": 60,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 36,
+        "name": "Clefable",
+        "internal_name": "CLEFABLE",
+        "type1": "FAIRY",
+        "type2": null,
+        "base_stats": {
+          "hp": 95,
+          "attack": 70,
+          "defense": 73,
+          "speed": 60,
+          "sp_attack": 95,
+          "sp_defense": 90
+        },
+        "bst": 483,
+        "abilities": [
+          "CUTECHARM"
+        ],
+        "hidden_ability": "UNAWARE",
+        "moves": [
+          {
+            "level": 1,
+            "move": "SING"
+          },
+          {
+            "level": 1,
+            "move": "DOUBLESLAP"
+          },
+          {
+            "level": 1,
+            "move": "MINIMIZE"
+          },
+          {
+            "level": 1,
+            "move": "METRONOME"
+          },
+          {
+            "level": 30,
+            "move": "MISTYTERRAIN"
+          },
+          {
+            "level": 35,
+            "move": "BRUMAEXPLOSIVA"
+          },
+          {
+            "level": 40,
+            "move": "MOONBLAST"
+          },
+          {
+            "level": 50,
+            "move": "METEORBEAM"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Fairy",
+        "pokedex": "A Clefable uses its wings to skip lightly as if it were flying. Its bouncy step lets it even walk on water. On quiet, moonlit nights, it strolls on lakes.",
+        "height": 1.3,
+        "weight": 40.0,
+        "color": "Pink",
+        "habitat": "Mountain",
+        "role": "Clérigo",
+        "nature": "Osada",
+        "item": "Restos",
+        "ability": "Muro Mágico",
+        "moves_custom": [
+          "Fuerza Lunar",
+          "Bruma Explosiva",
+          "Rayo Meteórico",
+          "Doblebofetón"
+        ],
+        "moves_details": [
+          {
+            "name": "Fuerza Lunar",
+            "type": "Hada",
+            "category": "Special",
+            "power": 95,
+            "accuracy": 100
+          },
+          {
+            "name": "Bruma Explosiva",
+            "type": "Hada",
+            "category": "Special",
+            "power": 70,
+            "accuracy": 100
+          },
+          {
+            "name": "Rayo Meteórico",
+            "type": "Roca",
+            "category": "Special",
+            "power": 130,
+            "accuracy": 90
+          },
+          {
+            "name": "Doblebofetón",
+            "type": "Normal",
+            "category": "Physical",
+            "power": 15,
+            "accuracy": 85
+          }
+        ]
+      },
+      {
+        "id": 461,
+        "name": "Weavile",
+        "internal_name": "WEAVILE",
+        "type1": "DARK",
+        "type2": "ICE",
+        "base_stats": {
+          "hp": 70,
+          "attack": 120,
+          "defense": 65,
+          "speed": 125,
+          "sp_attack": 45,
+          "sp_defense": 85
+        },
+        "bst": 510,
+        "abilities": [
+          "INNERFOCUS"
+        ],
+        "hidden_ability": "PICKPOCKET",
+        "moves": [
+          {
+            "level": 1,
+            "move": "EMBARGO"
+          },
+          {
+            "level": 1,
+            "move": "REVENGE"
+          },
+          {
+            "level": 1,
+            "move": "ASSURANCE"
+          },
+          {
+            "level": 1,
+            "move": "SCRATCH"
+          },
+          {
+            "level": 1,
+            "move": "LEER"
+          },
+          {
+            "level": 1,
+            "move": "TAUNT"
+          },
+          {
+            "level": 1,
+            "move": "QUICKATTACK"
+          },
+          {
+            "level": 8,
+            "move": "QUICKATTACK"
+          },
+          {
+            "level": 10,
+            "move": "FAINTATTACK"
+          },
+          {
+            "level": 14,
+            "move": "ICYWIND"
+          },
+          {
+            "level": 16,
+            "move": "FURYSWIPES"
+          },
+          {
+            "level": 20,
+            "move": "NASTYPLOT"
+          },
+          {
+            "level": 22,
+            "move": "METALCLAW"
+          },
+          {
+            "level": 25,
+            "move": "HONECLAWS"
+          },
+          {
+            "level": 28,
+            "move": "KNOCKOFF"
+          },
+          {
+            "level": 32,
+            "move": "SCREECH"
+          },
+          {
+            "level": 35,
+            "move": "NIGHTSLASH"
+          },
+          {
+            "level": 40,
+            "move": "SNATCH"
+          },
+          {
+            "level": 44,
+            "move": "ICICLESPEAR"
+          },
+          {
+            "level": 47,
+            "move": "DARKPULSE"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Sharp Claw",
+        "pokedex": "They live in cold regions, forming groups of four or five that hunt prey with impressive coordination.",
+        "height": 1.1,
+        "weight": 34.0,
+        "color": "Black",
+        "habitat": "",
+        "role": "Atacante Especial Rápido",
+        "nature": "Alegre",
+        "item": "Cinta Elegida",
+        "ability": "Presión",
+        "moves_custom": [
+          "Pulso Umbrío",
+          "Viento Hielo",
+          "Mofa"
+        ],
+        "moves_details": [
+          {
+            "name": "Pulso Umbrío",
+            "type": "Siniestro",
+            "category": "Special",
+            "power": 80,
+            "accuracy": 100
+          },
+          {
+            "name": "Viento Hielo",
+            "type": "Hielo",
+            "category": "Special",
+            "power": 55,
+            "accuracy": 95
+          },
+          {
+            "name": "Mofa",
+            "type": "Siniestro",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 80,
+        "name": "Slowbro",
+        "internal_name": "SLOWBRO",
+        "type1": "WATER",
+        "type2": "PSYCHIC",
+        "base_stats": {
+          "hp": 95,
+          "attack": 75,
+          "defense": 110,
+          "speed": 30,
+          "sp_attack": 100,
+          "sp_defense": 80
+        },
+        "bst": 490,
+        "abilities": [
+          "OBLIVIOUS",
+          "REGENERATOR"
+        ],
+        "hidden_ability": "REGENERATOR",
+        "moves": [
+          {
+            "level": 1,
+            "move": "CURSE"
+          },
+          {
+            "level": 1,
+            "move": "YAWN"
+          },
+          {
+            "level": 1,
+            "move": "TACKLE"
+          },
+          {
+            "level": 1,
+            "move": "GROWL"
+          },
+          {
+            "level": 5,
+            "move": "GROWL"
+          },
+          {
+            "level": 9,
+            "move": "WATERGUN"
+          },
+          {
+            "level": 14,
+            "move": "CONFUSION"
+          },
+          {
+            "level": 19,
+            "move": "DISABLE"
+          },
+          {
+            "level": 23,
+            "move": "HEADBUTT"
+          },
+          {
+            "level": 28,
+            "move": "WATERPULSE"
+          },
+          {
+            "level": 32,
+            "move": "ZENHEADBUTT"
+          },
+          {
+            "level": 36,
+            "move": "SLACKOFF"
+          },
+          {
+            "level": 37,
+            "move": "WITHDRAW"
+          },
+          {
+            "level": 43,
+            "move": "AMNESIA"
+          },
+          {
+            "level": 45,
+            "move": "PSYCHIC"
+          },
+          {
+            "level": 48,
+            "move": "PSYCHICTERRAIN"
+          },
+          {
+            "level": 50,
+            "move": "PSYSHOCK"
+          },
+          {
+            "level": 55,
+            "move": "RAINDANCE"
+          },
+          {
+            "level": 62,
+            "move": "PSYCHUP"
+          },
+          {
+            "level": 68,
+            "move": "HEALPULSE"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Hermit Crab",
+        "pokedex": "Its tail has a Shellder firmly attached with a bite. As a result, the tail can't be used for fishing anymore. This forces it to reluctantly swim and catch prey.",
+        "height": 1.6,
+        "weight": 78.5,
+        "color": "Pink",
+        "habitat": "WatersEdge",
+        "role": "Muralla Física",
+        "nature": "Osada",
+        "item": "Casco Dentado",
+        "ability": "Regeneración",
+        "moves_custom": [
+          "Psíquico",
+          "Psicocarga",
+          "Relajo",
+          "Hidropulso"
+        ],
+        "moves_details": [
+          {
+            "name": "Psíquico",
+            "type": "Psíquico",
+            "category": "Special",
+            "power": 90,
+            "accuracy": 100
+          },
+          {
+            "name": "Psicocarga",
+            "type": "Psíquico",
+            "category": "Special",
+            "power": 80,
+            "accuracy": 100
+          },
+          {
+            "name": "Relajo",
+            "type": "Normal",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 0
+          },
+          {
+            "name": "Hidropulso",
+            "type": "Agua",
+            "category": "Special",
+            "power": 60,
+            "accuracy": 100
+          }
+        ]
+      },
+      {
+        "id": 823,
+        "name": "Corviknight",
+        "internal_name": "CORVIKNIGHT",
+        "type1": "FLYING",
+        "type2": "STEEL",
+        "base_stats": {
+          "hp": 98,
+          "attack": 87,
+          "defense": 105,
+          "speed": 67,
+          "sp_attack": 53,
+          "sp_defense": 85
+        },
+        "bst": 495,
+        "abilities": [
+          "PRESSURE",
+          "UNNERVE"
+        ],
+        "hidden_ability": "MIRRORARMOR",
+        "moves": [
+          {
+            "level": 1,
+            "move": "STEELWING"
+          },
+          {
+            "level": 1,
+            "move": "PECK"
+          },
+          {
+            "level": 1,
+            "move": "LEER"
+          },
+          {
+            "level": 1,
+            "move": "SANDATTACK"
+          },
+          {
+            "level": 1,
+            "move": "HONECLAWS"
+          },
+          {
+            "level": 10,
+            "move": "CHULERIA"
+          },
+          {
+            "level": 12,
+            "move": "FURYATTACK"
+          },
+          {
+            "level": 16,
+            "move": "PLUCK"
+          },
+          {
+            "level": 22,
+            "move": "TAUNT"
+          },
+          {
+            "level": 24,
+            "move": "DRILLPECK"
+          },
+          {
+            "level": 28,
+            "move": "SCARYFACE"
+          },
+          {
+            "level": 36,
+            "move": "BODYPRESS"
+          },
+          {
+            "level": 42,
+            "move": "SWAGGER"
+          },
+          {
+            "level": 50,
+            "move": "BRAVEBIRD"
+          }
+        ],
+        "egg_moves": [],
+        "kind": "Cuervo",
+        "pokedex": "No tiene rival en los cielos. El acero negro y lustroso de su cuerpo intimida a cualquier adversario.",
+        "height": 2.2,
+        "weight": 75.0,
+        "color": "Purple",
+        "habitat": "Forest",
+        "role": "Pivote Defensivo",
+        "nature": "Agitada",
+        "item": "Restos",
+        "ability": "Presión",
+        "moves_custom": [
+          "Mofa"
+        ],
+        "moves_details": [
+          {
+            "name": "Mofa",
+            "type": "Siniestro",
+            "category": "Status",
+            "power": 0,
+            "accuracy": 100
+          }
+        ]
+      }
+    ],
+    "created_at": "2026-11-17T12:10:00Z",
+    "is_starter": true,
+    "showdown_paste": "Garchomp @ Life Orb\nAbility: Piel Rugosa\nEVs: 252 Atk / 4 SpD / 252 Spe\nJolly Nature\n- Carga Dragón\n- Garra Dragón\n- Derribo\n- Triturar\n\nHeatran @ Leftovers\nAbility: Flashfire\nEVs: 252 HP / 252 Def / 4 SpD\nModest Nature\n- Lluvia Ígnea\n- Onda Ígnea\n- Tierra Viva\n- Poder Pasado\n\nClefable @ Leftovers\nAbility: Magicguard\nEVs: 252 HP / 252 SpA / 4 Spe\nBold Nature\n- Fuerza Lunar\n- Bruma Explosiva\n- Rayo Meteórico\n- Doblebofetón\n\nWeavile @ Cinta Elegida\nAbility: Pressure\nEVs: 252 Atk / 4 SpD / 252 Spe\nJolly Nature\n- Pulso Umbrío\n- Viento Hielo\n- Mofa\n\nSlowbro @ Rocky Helmet\nAbility: Regenerator\nEVs: 252 HP / 252 Def / 4 SpD\nBold Nature\n- Psíquico\n- Psicocarga\n- Relajo\n- Hidropulso\n\nCorviknight @ Leftovers\nAbility: Pressure\nEVs: 252 HP / 252 Def / 4 SpD\nImpish Nature\n- Mofa"
+  }
+]

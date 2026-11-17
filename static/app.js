@@ -398,7 +398,7 @@ async function sendMessage() {
       teamBuildState.archetype = data.team_build.archetype;
     }
 
-    updateMessage(loadingId, data.response || "No se obtuvo respuesta.", data.suggested_options);
+    updateMessage(loadingId, data.response || "No se obtuvo respuesta.", data.suggested_options, data.suggested_team_load);
 
     if (data.detected_pokemon && data.detected_pokemon.length > 0) {
       inspectPokemon(data.detected_pokemon[0]);
@@ -431,7 +431,7 @@ function appendMessage(role, text) {
   return id;
 }
 
-function updateMessage(id, text, suggestedOptions) {
+function updateMessage(id, text, suggestedOptions, suggestedTeamLoad) {
   const el = document.getElementById(id);
   if (!el) return;
   const contentDiv = el.querySelector(".msg-content");
@@ -492,6 +492,42 @@ function updateMessage(id, text, suggestedOptions) {
             <span style="background: rgba(0,0,0,0.45); padding: 2px 8px; border-radius: 4px; color: #55f3a0; font-size: 0.72rem; border: 1px solid rgba(255,255,255,0.15);">Faltan ${faltan}</span>
           </div>
           ${buttonsHtml}
+        </div>
+      `;
+    }
+
+    if (suggestedTeamLoad && suggestedTeamLoad.id) {
+      const teamId = suggestedTeamLoad.id;
+      const teamName = (suggestedTeamLoad.name || "Equipo Competitivo").replace(/'/g, "\\'");
+      const archetype = suggestedTeamLoad.archetype || "Estrategia";
+      const desc = suggestedTeamLoad.description || "";
+      const members = suggestedTeamLoad.members || [];
+      
+      const spritesHtml = members.map(m => {
+        const pId = m.id || m.species || m.name;
+        const pName = m.name || m.species || "Pokémon";
+        return `
+          <div class="library-sprite-item" title="${pName}">
+            <img src="/icon/${pId}?v=c1" alt="${pName}" onerror="this.style.display='none'">
+            <span class="library-sprite-name">${pName}</span>
+          </div>
+        `;
+      }).join("");
+
+      parsedContent += `
+        <div class="chat-team-recommendation">
+          <div class="chat-team-header">
+            <span class="library-archetype-badge">📚 ${archetype.toUpperCase()}</span>
+            <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 700;">6/6 Miembros</span>
+          </div>
+          <div style="font-weight: 800; font-size: 1.05rem; color: #ffffff;">⚡ ${teamName}</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">${desc}</div>
+          <div class="library-sprites-strip">
+            ${spritesHtml}
+          </div>
+          <button class="btn-load-team-chat" onclick="loadTeamFromLibrary('${teamId}', true)">
+            ⚡ Cargar este equipo completo (6/6)
+          </button>
         </div>
       `;
     }
@@ -619,7 +655,7 @@ async function requestNextTeamSlot(queryText) {
       teamBuildState.archetype = data.team_build.archetype;
     }
 
-    updateMessage(loadingId, data.response || "Aquí tienes las siguientes opciones.", data.suggested_options);
+    updateMessage(loadingId, data.response || "Aquí tienes las siguientes opciones.", data.suggested_options, data.suggested_team_load);
   } catch (err) {
     updateMessage(loadingId, "⚠️ Error al consultar el siguiente miembro: " + err.message);
   }
@@ -1572,5 +1608,322 @@ async function saveCustomPokemon() {
     alert("Error al guardar el Pokémon: " + err.message);
   } finally {
     saveBtn.disabled = false;
+  }
+}
+
+/* =========================================================
+   BIBLIOTECA VECTORIAL & GUARDADO DE EQUIPOS
+   ========================================================= */
+
+// Global state for library
+let libraryTeamsCache = [];
+let librarySearchTimeout = null;
+
+function openSaveTeamModal() {
+  if (!currentTeamList || currentTeamList.length < 6) {
+    alert(`⚠️ Para guardar una formación en la biblioteca debe tener los 6 miembros reglamentarios (actualmente tienes ${currentTeamList.length}/6).\n\n¡Ficha o añade Pokémon hasta completar los 6 puestos antes de guardarlo!`);
+    return;
+  }
+
+  const nameInput = document.getElementById("save-team-name-input");
+  const notesInput = document.getElementById("save-team-notes-input");
+  if (nameInput) nameInput.value = "";
+  if (notesInput) notesInput.value = "";
+
+  const modal = document.getElementById("save-team-modal");
+  if (modal) {
+    modal.style.display = "flex";
+    setTimeout(() => {
+      if (nameInput) nameInput.focus();
+    }, 50);
+  }
+}
+
+function closeSaveTeamModal() {
+  const modal = document.getElementById("save-team-modal");
+  if (modal) modal.style.display = "none";
+}
+
+async function confirmSaveTeam() {
+  const nameInput = document.getElementById("save-team-name-input");
+  const notesInput = document.getElementById("save-team-notes-input");
+  const name = nameInput ? nameInput.value.trim() : "";
+  const notes = notesInput ? notesInput.value.trim() : "";
+
+  if (!name) {
+    alert("Por favor asigna un nombre para identificar este equipo.");
+    if (nameInput) nameInput.focus();
+    return;
+  }
+
+  try {
+    const res = await fetch("/teams/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: sessionId,
+        name: name,
+        notes: notes
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      alert("Error al guardar el equipo: " + (data.detail || "Error desconocido"));
+      return;
+    }
+
+    closeSaveTeamModal();
+    appendMessage("bot", `💾 **¡Equipo guardado con éxito!**\n\nHe registrado la formación **'${name}'** en la biblioteca de equipos y he generado su vector semántico en ChromaDB. Ahora puedes buscarlo por sus sinergias o cargarlo cuando quieras.`);
+
+  } catch (err) {
+    alert("Error de conexión al guardar el equipo: " + err.message);
+  }
+}
+
+function openLibraryModal() {
+  const modal = document.getElementById("library-modal");
+  if (modal) {
+    modal.style.display = "flex";
+    const searchInput = document.getElementById("library-search-input");
+    if (searchInput) {
+      searchInput.value = "";
+    }
+    fetchAndRenderLibraryTeams("");
+  }
+}
+
+function closeLibraryModal() {
+  const modal = document.getElementById("library-modal");
+  if (modal) modal.style.display = "none";
+}
+
+function debounceLibrarySearch() {
+  if (librarySearchTimeout) clearTimeout(librarySearchTimeout);
+  librarySearchTimeout = setTimeout(() => {
+    const searchInput = document.getElementById("library-search-input");
+    const q = searchInput ? searchInput.value.trim() : "";
+    fetchAndRenderLibraryTeams(q);
+  }, 250);
+}
+
+async function fetchAndRenderLibraryTeams(query = "") {
+  const grid = document.getElementById("library-teams-grid");
+  const badge = document.getElementById("library-count-badge");
+  if (!grid) return;
+
+  grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); padding: 40px;">
+    <em>🔍 Consultando base de datos vectorial ChromaDB...</em>
+  </div>`;
+
+  try {
+    const url = query ? `/teams/search?q=${encodeURIComponent(query)}&n=12` : "/teams";
+    const res = await fetch(url);
+    const data = await res.json();
+    const teams = data.teams || [];
+    libraryTeamsCache = teams;
+
+    if (badge) {
+      badge.textContent = `${teams.length} equipo${teams.length === 1 ? '' : 's'}`;
+    }
+
+    if (teams.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-secondary); padding: 40px; background: #131726; border: 2px dashed rgba(255,255,255,0.15); border-radius: var(--radius-md);">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📚</div>
+          <div style="font-weight: 700; color: #fff;">No se encontraron equipos</div>
+          <div style="font-size: 0.85rem; margin-top: 4px;">Intenta con otros términos como <em>lluvia</em>, <em>defensivo</em>, <em>balance</em> o nombres de Pokémon.</div>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = teams.map((team, idx) => {
+      const teamId = team.id;
+      const teamName = team.name || "Equipo Sin Nombre";
+      const arch = team.archetype || "Estrategia";
+      const desc = team.description || "";
+      const isCustom = team.is_custom === true;
+      const members = team.members || [];
+
+      const spritesHtml = members.map(m => {
+        const pId = m.id || m.species || m.name;
+        const pName = m.name || m.species || "Pokémon";
+        return `
+          <div class="library-sprite-item" title="${pName}">
+            <img src="/icon/${pId}?v=c1" alt="${pName}" onerror="this.style.display='none'">
+            <span class="library-sprite-name">${pName}</span>
+          </div>
+        `;
+      }).join("");
+
+      const detailsHtml = members.map(m => {
+        const movesStr = (m.moves || []).join(", ") || "Movimientos estándar";
+        const abilityStr = m.ability || "Habilidad estándar";
+        const itemStr = m.item || "Sin objeto";
+        const natureStr = m.nature || "Neutra";
+        const roleStr = m.role ? translateRole(m.role) : "";
+
+        return `
+          <div class="library-member-row">
+            <div>
+              <strong style="color: #ffffff;">${m.name}</strong> 
+              ${roleStr ? `<span style="font-size:0.7rem; color:var(--accent-yellow); margin-left:4px;">[${roleStr}]</span>` : ''}
+              <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">
+                🧬 ${natureStr} | 🛡️ ${abilityStr} | 🎒 ${itemStr}
+              </div>
+            </div>
+            <div style="font-size:0.72rem; color:var(--accent-cyan); text-align:right; max-width: 45%;">
+              ${movesStr}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div class="library-team-card" id="library-card-${idx}">
+          <div class="library-card-header">
+            <div class="library-team-title">${teamName}</div>
+            <span class="library-archetype-badge">${arch}</span>
+          </div>
+
+          <div class="library-sprites-strip">
+            ${spritesHtml}
+          </div>
+
+          <div class="library-team-desc">
+            ${desc}
+          </div>
+
+          <!-- Collapsible Drawer for details -->
+          <div class="library-details-drawer" id="library-drawer-${idx}" style="display: none;">
+            <div style="font-size:0.75rem; font-weight:800; color:var(--accent-cyan); text-transform:uppercase; margin-bottom:4px;">
+              Detalles Tácticos (6 Miembros)
+            </div>
+            ${detailsHtml}
+          </div>
+
+          <div class="library-card-actions">
+            <div>
+              <button class="action-btn" style="padding: 5px 10px; font-size: 0.75rem;" onclick="toggleLibraryDetails(${idx})">
+                <span id="library-drawer-toggle-${idx}">🔍 Detalles</span>
+              </button>
+              <button class="action-btn" style="padding: 5px 10px; font-size: 0.75rem;" onclick="copyLibraryTeamShowdown(${idx})">
+                <span>📋 Showdown</span>
+              </button>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              ${isCustom ? `
+                <button class="action-btn danger" style="padding: 5px 8px; font-size: 0.75rem;" title="Eliminar equipo" onclick="deleteTeamFromLibrary('${teamId}')">
+                  🗑️
+                </button>
+              ` : ''}
+              <button class="action-btn success" style="padding: 6px 12px; font-size: 0.82rem; font-weight:800;" onclick="loadTeamFromLibrary('${teamId}')">
+                <span>⚡ Cargar en Equipo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+  } catch (err) {
+    grid.innerHTML = `<div style="grid-column: 1 / -1; color: var(--accent-red); padding: 20px; text-align:center;">
+      ⚠️ Error al cargar la biblioteca de equipos: ${err.message}
+    </div>`;
+  }
+}
+
+function toggleLibraryDetails(idx) {
+  const drawer = document.getElementById(`library-drawer-${idx}`);
+  const toggleBtn = document.getElementById(`library-drawer-toggle-${idx}`);
+  if (!drawer) return;
+
+  if (drawer.style.display === "none") {
+    drawer.style.display = "flex";
+    if (toggleBtn) toggleBtn.textContent = "▲ Ocultar";
+  } else {
+    drawer.style.display = "none";
+    if (toggleBtn) toggleBtn.textContent = "🔍 Detalles";
+  }
+}
+
+async function copyLibraryTeamShowdown(idx) {
+  const team = libraryTeamsCache[idx];
+  if (!team) return;
+
+  const paste = team.showdown_export || "";
+  if (!paste) {
+    alert("Este equipo no cuenta con exportación Showdown directa.");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(paste);
+    alert(`📋 ¡Showdown de "${team.name}" copiado al portapapeles!`);
+  } catch (e) {
+    const textarea = document.createElement("textarea");
+    textarea.value = paste;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    alert(`📋 ¡Showdown de "${team.name}" copiado al portapapeles!`);
+  }
+}
+
+async function loadTeamFromLibrary(teamId, skipConfirm = false) {
+  if (!skipConfirm && currentTeamList.length > 0) {
+    const ok = confirm(`¿Quieres reemplazar tu equipo actual (${currentTeamList.length}/6 miembros) por esta formación completa?`);
+    if (!ok) return;
+  }
+
+  try {
+    const res = await fetch(`/teams/${teamId}/load?session_id=${sessionId}`, {
+      method: "POST"
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert("Error al cargar el equipo: " + (data.detail || "Error desconocido"));
+      return;
+    }
+
+    currentTeamList = data.team || [];
+    renderTeam(currentTeamList);
+    closeLibraryModal();
+
+    appendMessage("bot", `⚡ **¡Equipo '${data.name}' cargado con éxito!** (${currentTeamList.length}/6 miembros)\n\nAhora tienes la formación completa en tu panel activo. Puedes consultar cualquier análisis táctico, exportarlo a Showdown o personalizar los movimientos y objetos de cualquier miembro pulsando en **'Personalizar'**.`);
+
+    // If any member in team, inspect the first one
+    if (currentTeamList.length > 0) {
+      inspectPokemon(currentTeamList[0].name || currentTeamList[0].species);
+    }
+
+  } catch (err) {
+    alert("Error de conexión al cargar equipo: " + err.message);
+  }
+}
+
+async function deleteTeamFromLibrary(teamId) {
+  const ok = confirm("¿Estás seguro de que deseas eliminar este equipo personalizado de la biblioteca y de la base de datos vectorial?");
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`/teams/${teamId}`, {
+      method: "DELETE"
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert("Error al eliminar equipo: " + (data.detail || "Error desconocido"));
+      return;
+    }
+
+    // Refresh library view
+    const searchInput = document.getElementById("library-search-input");
+    const q = searchInput ? searchInput.value.trim() : "";
+    fetchAndRenderLibraryTeams(q);
+
+  } catch (err) {
+    alert("Error de conexión al eliminar equipo: " + err.message);
   }
 }

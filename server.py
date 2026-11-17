@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from engine.pbs_parser import PBSParser
 from engine.type_chart import TypeChart, SPANISH_TYPE_NAMES, TYPE_COLORS
 from engine.showdown import ShowdownExporter, ALL_NATURES, COMPETITIVE_ITEMS, NATURES
+from engine.team_store import TeamStore
 from graph.graph import poke_app
 
 from PIL import Image
@@ -41,6 +42,7 @@ app.add_middleware(
 parser = PBSParser()
 type_chart = TypeChart(parser.types)
 exporter = ShowdownExporter(parser)
+team_store = TeamStore(parser)
 
 # In-memory sessions store: session_id -> list of pokemon dicts
 SESSIONS: Dict[str, List[Dict[str, Any]]] = {}
@@ -59,6 +61,14 @@ class AddCustomPokemonRequest(BaseModel):
     ability: Optional[str] = None
     item: Optional[str] = None
     nature: Optional[str] = None
+
+class SaveTeamRequest(BaseModel):
+    session_id: str
+    name: str
+    notes: Optional[str] = ""
+
+class LoadTeamRequest(BaseModel):
+    session_id: str
 
 @app.get("/")
 def get_index():
@@ -230,7 +240,8 @@ def chat_endpoint(req: ChatRequest):
             "detected_pokemon": final_state.get("detected_pokemon", []),
             "team": enriched_team,
             "suggested_options": suggested_opts,
-            "team_build": team_build_info
+            "team_build": team_build_info,
+            "suggested_team_load": final_state.get("suggested_team_load")
         }
     except Exception as e:
         return {
@@ -402,6 +413,72 @@ def export_showdown(session_id: str):
         return PlainTextResponse("No hay Pokémon en el equipo para exportar.")
     paste = exporter.export_team(team)
     return PlainTextResponse(paste)
+
+# ==========================================================================
+#   Vector Team Library Endpoints
+# ==========================================================================
+@app.get("/teams")
+def list_saved_teams():
+    return {"teams": team_store.list_teams()}
+
+@app.get("/teams/search")
+def search_saved_teams(q: str = ""):
+    if not q.strip():
+        return {"teams": team_store.list_teams()}
+    return {"teams": team_store.search_teams_semantic(q.strip(), top_k=6)}
+
+@app.get("/teams/{team_id}")
+def get_saved_team(team_id: str):
+    t = team_store.get_team(team_id)
+    if not t:
+        raise HTTPException(status_code=404, detail="Equipo no encontrado.")
+    return {"team": t}
+
+@app.post("/teams/save")
+def save_active_team(req: SaveTeamRequest):
+    current_team = SESSIONS.get(req.session_id, [])
+    if len(current_team) != 6:
+        raise HTTPException(status_code=400, detail=f"Solo se pueden registrar equipos completos de 6 Pokémon (actualmente tienes {len(current_team)}/6).")
+    try:
+        saved = team_store.save_team(req.name, current_team, user_notes=req.notes)
+        return {
+            "message": f"Equipo '{saved['name']}' registrado con éxito en la Biblioteca Vectorial.",
+            "team": saved,
+            "id": saved["id"],
+            "name": saved["name"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/teams/{team_id}/load")
+def load_saved_team(team_id: str, req: Optional[LoadTeamRequest] = None, session_id: Optional[str] = None):
+    effective_session = session_id or (req.session_id if req else None) or "default"
+    t = team_store.get_team(team_id)
+    if not t:
+        raise HTTPException(status_code=404, detail="Equipo no encontrado.")
+    
+    enriched = [enrich_pokemon_team_entry(dict(p)) for p in t.get("members", [])]
+    SESSIONS[effective_session] = enriched
+    
+    meta = SESSIONS_METADATA.setdefault(effective_session, {})
+    meta["team_build_target"] = 6
+    meta["team_build_active"] = False
+    if enriched:
+        meta["last_pokemon"] = enriched[0]["name"]
+        
+    return {
+        "message": f"Equipo '{t['name']}' cargado con éxito en tu formación activa.",
+        "name": t["name"],
+        "team": enriched,
+        "team_meta": t
+    }
+
+@app.delete("/teams/{team_id}")
+def delete_saved_team(team_id: str):
+    success = team_store.delete_team(team_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Equipo no encontrado o no se pudo eliminar.")
+    return {"message": "Equipo eliminado correctamente de la biblioteca."}
 
 @app.get("/pokemon/{name_or_id}")
 def get_pokemon_info(name_or_id: str):

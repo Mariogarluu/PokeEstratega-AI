@@ -36,24 +36,49 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+let currentTeamList = [];
+let slotExpandedMap = {}; // name -> boolean
+
 async function syncTeam() {
   try {
     const res = await fetch(`/team/${sessionId}`);
     if (res.ok) {
       const data = await res.json();
-      renderTeam(data.team);
+      currentTeamList = data.team || [];
+      renderTeam(currentTeamList);
     }
   } catch (err) {
     console.error("Error sincronizando equipo:", err);
   }
 }
 
+function toggleSlotAccordion(slotIdx, event) {
+  if (event) event.stopPropagation();
+  const body = document.getElementById(`slot-accordion-body-${slotIdx}`);
+  const arrow = document.getElementById(`slot-arrow-${slotIdx}`);
+  if (!body) return;
+
+  const isNowCollapsed = !body.classList.contains("collapsed");
+  if (isNowCollapsed) {
+    body.classList.add("collapsed");
+    if (arrow) arrow.textContent = "▼";
+  } else {
+    body.classList.remove("collapsed");
+    if (arrow) arrow.textContent = "▲";
+  }
+  const pkmnName = body.getAttribute("data-pokename");
+  if (pkmnName) {
+    slotExpandedMap[pkmnName] = !isNowCollapsed;
+  }
+}
+
 function renderTeam(teamList) {
+  currentTeamList = teamList || [];
   const container = document.getElementById("team-slots-container");
   const counter = document.getElementById("team-counter");
-  counter.textContent = `${teamList.length} / 6`;
+  if (counter) counter.textContent = `${currentTeamList.length} / 6`;
 
-  if (!teamList || teamList.length === 0) {
+  if (!currentTeamList || currentTeamList.length === 0) {
     container.innerHTML = `
       <div class="team-slot" style="color: var(--text-secondary); font-size: 0.85rem; justify-content: center;">
         No tienes Pokémon en tu equipo aún.
@@ -62,22 +87,107 @@ function renderTeam(teamList) {
     return;
   }
 
-  container.innerHTML = teamList.map(p => {
+  container.innerHTML = currentTeamList.map((p, idx) => {
     const t1 = createTypeBadge(p.type1);
     const t2 = p.type2 ? createTypeBadge(p.type2) : "";
+
+    // Check if slot was previously expanded (default: true for all members)
+    const isExpanded = slotExpandedMap[p.name] !== undefined ? slotExpandedMap[p.name] : true;
+    const arrowSymbol = isExpanded ? "▲" : "▼";
+    const bodyCollapsedClass = isExpanded ? "" : "collapsed";
+
+    // Meta chips
+    const roleChip = p.role ? `<span class="slot-meta-chip"><strong>Rol:</strong> ${p.role}</span>` : "";
+    const itemChip = p.item ? `<span class="slot-meta-chip">🎒 ${p.item}</span>` : "";
+    const abilityChip = p.ability ? `<span class="slot-meta-chip">✨ ${p.ability}</span>` : "";
+    const natureChip = p.nature ? `<span class="slot-meta-chip">🧬 ${p.nature}</span>` : "";
+
+    // Moves pills (from moves_details or moves_custom)
+    let movesHtml = "";
+    if (p.moves_details && p.moves_details.length > 0) {
+      movesHtml = p.moves_details.map(m => {
+        const typeKey = (m.type || "NORMAL").toUpperCase();
+        const color = TYPE_COLORS[typeKey] || "#666";
+        const catIcon = m.category === "Physical" ? "⚔️" : (m.category === "Special" ? "🔮" : "🛡️");
+        return `
+          <div class="slot-move-pill" style="background-color: ${color};" title="${m.name} (${m.type}) - Pot: ${m.power || '—'}">
+            <span class="move-pill-name">${m.name}</span>
+            <span class="move-pill-cat">${catIcon}</span>
+          </div>
+        `;
+      }).join("");
+    } else if (p.moves_custom && p.moves_custom.length > 0) {
+      movesHtml = p.moves_custom.map(mName => {
+        return `
+          <div class="slot-move-pill" style="background-color: #3b4259;" title="${mName}">
+            <span class="move-pill-name">${mName}</span>
+          </div>
+        `;
+      }).join("");
+    } else {
+      movesHtml = `<div style="grid-column: span 2; font-size: 0.72rem; color: var(--text-secondary);">Sin movimientos asignados</div>`;
+    }
+
     return `
       <div class="team-slot filled">
-        <div class="slot-info" onclick="inspectPokemon('${p.name}')" style="cursor: pointer;">
-          <img src="/icon/${p.id}?v=c1" class="slot-sprite" alt="${p.name}" onerror="this.style.display='none'">
-          <div>
-            <span class="slot-name">${p.name}</span>
-            <div class="slot-types">${t1}${t2}</div>
+        <div class="slot-header-row">
+          <div class="slot-main-info" onclick="inspectPokemon('${p.name}')" title="Clic para ver ficha rápida">
+            <img src="/icon/${p.id}?v=c1" class="slot-sprite" alt="${p.name}" onerror="this.style.display='none'">
+            <div>
+              <span class="slot-name">${p.name}</span>
+              <div class="slot-types">${t1}${t2}</div>
+            </div>
+          </div>
+          <div class="slot-actions">
+            <button class="slot-action-btn edit-btn" title="Editar configuración" onclick="editPokemonFromTeam('${p.name}')">✏️</button>
+            <button class="slot-action-btn toggle-btn" id="slot-arrow-${idx}" title="Desplegar / Ocultar" onclick="toggleSlotAccordion(${idx}, event)">${arrowSymbol}</button>
+            <button class="slot-action-btn remove-btn" title="Eliminar del equipo" onclick="removeFromTeam('${p.name}')">✕</button>
           </div>
         </div>
-        <button class="remove-btn" title="Eliminar del equipo" onclick="removeFromTeam('${p.name}')">✕</button>
+        <div class="slot-accordion-body ${bodyCollapsedClass}" id="slot-accordion-body-${idx}" data-pokename="${p.name}">
+          <div class="slot-meta-chips">
+            ${roleChip}
+            ${itemChip}
+            ${abilityChip}
+            ${natureChip}
+          </div>
+          <div class="slot-moves-grid">
+            ${movesHtml}
+          </div>
+        </div>
       </div>
     `;
   }).join("");
+}
+
+async function editPokemonFromTeam(nameOrId) {
+  const modal = document.getElementById("builder-modal");
+  if (modal) modal.style.display = "flex";
+
+  const pInTeam = currentTeamList.find(p => p.name.toLowerCase() === String(nameOrId).toLowerCase() || p.id == nameOrId);
+
+  await selectPokemonForConfig(nameOrId);
+
+  if (pInTeam) {
+    if (pInTeam.moves_custom && pInTeam.moves_custom.length > 0) {
+      selectedMoves = [
+        pInTeam.moves_custom[0] || null,
+        pInTeam.moves_custom[1] || null,
+        pInTeam.moves_custom[2] || null,
+        pInTeam.moves_custom[3] || null
+      ];
+    }
+    if (pInTeam.ability) selectedAbility = pInTeam.ability;
+    if (pInTeam.item) selectedItem = pInTeam.item;
+    if (pInTeam.nature) selectedNature = pInTeam.nature;
+
+    renderActiveMoveSlots();
+    renderMovesPool();
+    renderAbilitiesTab();
+    renderItemsTab();
+    renderNaturesTab();
+    updateFooterSummary();
+  }
 }
 
 async function removeFromTeam(name) {
@@ -89,7 +199,8 @@ async function removeFromTeam(name) {
     });
     if (res.ok) {
       const data = await res.json();
-      renderTeam(data.team);
+      currentTeamList = data.team || [];
+      renderTeam(currentTeamList);
       appendMessage("bot", `Se ha eliminado a **${name}** de tu equipo.`);
     }
   } catch (err) {
@@ -102,6 +213,7 @@ async function clearTeam() {
   try {
     const res = await fetch(`/team/${sessionId}/clear`, { method: "POST" });
     if (res.ok) {
+      currentTeamList = [];
       renderTeam([]);
       appendMessage("bot", "Se ha vaciado el equipo.");
     }
@@ -194,6 +306,7 @@ async function sendMessage() {
     updateMessage(loadingId, data.response || "No se obtuvo respuesta.");
 
     if (data.team) {
+      currentTeamList = data.team;
       renderTeam(data.team);
     }
 
@@ -266,6 +379,240 @@ function copyShowdownClipboard() {
   const btn = document.getElementById("copy-btn-text");
   btn.textContent = "✅ ¡Copiado!";
   setTimeout(() => { btn.textContent = "📋 Copiar al Portapapeles"; }, 2000);
+}
+
+// ---------------------------------------------------------------------
+// Full Team Tactical Board Modal (6 in 1)
+// ---------------------------------------------------------------------
+async function openTeamBoardModal() {
+  const modal = document.getElementById("team-board-modal");
+  if (!modal) return;
+  modal.style.display = "flex";
+
+  const counter = document.getElementById("board-team-counter");
+  const grid = document.getElementById("team-board-grid");
+  const auditContainer = document.getElementById("team-board-audit");
+
+  if (counter) counter.textContent = `Cargando...`;
+  if (grid) grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 30px;">Cargando formación táctica del equipo...</div>`;
+
+  try {
+    const res = await fetch(`/team/${sessionId}`);
+    if (!res.ok) throw new Error("Error al consultar equipo");
+    const data = await res.json();
+    currentTeamList = data.team || [];
+    renderTeamBoard(currentTeamList, data.audit);
+  } catch (err) {
+    if (grid) grid.innerHTML = `<div style="grid-column: 1/-1; color: #ff6b6b; padding: 20px;">⚠️ Error al cargar el equipo: ${err.message}</div>`;
+  }
+}
+
+function closeTeamBoardModal() {
+  const modal = document.getElementById("team-board-modal");
+  if (modal) modal.style.display = "none";
+}
+
+function renderTeamBoard(team, audit) {
+  const counter = document.getElementById("board-team-counter");
+  const grid = document.getElementById("team-board-grid");
+  const auditContainer = document.getElementById("team-board-audit");
+
+  if (counter) counter.textContent = `(${team.length} / 6)`;
+
+  if (!team || team.length === 0) {
+    if (grid) {
+      grid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px 20px; background: #151825; border-radius: 12px; border: 1px dashed var(--border-color);">
+          <div style="font-size: 2.2rem; margin-bottom: 8px;">🛡️</div>
+          <h4 style="color: #fff; margin-bottom: 6px;">Tu equipo está vacío</h4>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; max-width: 420px; margin: 0 auto 16px;">
+            Añade hasta 6 Pokémon usando el botón de Teambuilder o pídeselo directamente al Coach en el chat.
+          </p>
+          <button class="action-btn success" style="margin: 0 auto; display: inline-flex;" onclick="closeTeamBoardModal(); openBuilderModal();">
+            <span>➕ Añadir tu primer Pokémon</span>
+          </button>
+        </div>
+      `;
+    }
+    if (auditContainer) {
+      auditContainer.innerHTML = `<div style="text-align:center; color: var(--text-secondary); font-size: 0.82rem;">Sin datos de auditoría para un equipo vacío.</div>`;
+    }
+    return;
+  }
+
+  // Render 6 cards
+  if (grid) {
+    grid.innerHTML = team.map(p => {
+      const t1 = createTypeBadge(p.type1);
+      const t2 = p.type2 ? createTypeBadge(p.type2) : "";
+      const bs = p.base_stats || { hp: 0, attack: 0, defense: 0, sp_attack: 0, sp_defense: 0, speed: 0 };
+
+      // Moves grid
+      let movesHtml = "";
+      if (p.moves_details && p.moves_details.length > 0) {
+        movesHtml = p.moves_details.map(m => {
+          const typeKey = (m.type || "NORMAL").toUpperCase();
+          const color = TYPE_COLORS[typeKey] || "#555";
+          const catIcon = m.category === "Physical" ? "⚔️" : (m.category === "Special" ? "🔮" : "🛡️");
+          const potStr = m.power > 0 ? `Pot: ${m.power}` : "—";
+          return `
+            <div class="board-move-pill" style="background-color: ${color};">
+              <div class="board-move-top">
+                <span class="board-move-name">${m.name}</span>
+                <span class="board-move-cat">${catIcon}</span>
+              </div>
+              <div class="board-move-sub">
+                <span>${m.type}</span>
+                <span>${potStr}</span>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } else if (p.moves_custom && p.moves_custom.length > 0) {
+        movesHtml = p.moves_custom.map(mName => `
+          <div class="board-move-pill" style="background-color: #2b3044;">
+            <div class="board-move-top">
+              <span class="board-move-name">${mName}</span>
+            </div>
+          </div>
+        `).join("");
+      } else {
+        movesHtml = `<div style="grid-column: span 2; font-size: 0.75rem; color: var(--text-secondary);">Sin movimientos asignados</div>`;
+      }
+
+      return `
+        <div class="board-pkmn-card">
+          <div class="board-card-header">
+            <div class="board-card-pkmn">
+              <img src="/sprite/${p.id}?v=c1" class="board-card-sprite" alt="${p.name}" onerror="this.src='/icon/${p.id}?v=c1';">
+              <div class="board-card-title">
+                <div class="board-card-name">
+                  <span>${p.name}</span>
+                  <span style="font-size:0.75rem; color:var(--text-secondary); font-weight:normal;">#${p.id}</span>
+                </div>
+                <div class="board-card-types">${t1} ${t2}</div>
+                <div class="board-card-role">${p.role || "Competitivo"}</div>
+              </div>
+            </div>
+            <button class="slot-action-btn edit-btn" style="width:32px; height:32px; font-size:0.9rem;" title="Editar Pokémon" onclick="closeTeamBoardModal(); editPokemonFromTeam('${p.name}');">
+              ✏️
+            </button>
+          </div>
+
+          <!-- Base Stats Grid -->
+          <div class="board-card-stats">
+            <div class="board-stat-item">
+              <span class="board-stat-label">PS</span>
+              <span class="board-stat-val" style="color: #55f3a0;">${bs.hp}</span>
+            </div>
+            <div class="board-stat-item">
+              <span class="board-stat-label">ATK</span>
+              <span class="board-stat-val" style="color: #ff6b6b;">${bs.attack}</span>
+            </div>
+            <div class="board-stat-item">
+              <span class="board-stat-label">DEF</span>
+              <span class="board-stat-val" style="color: #4facfe;">${bs.defense}</span>
+            </div>
+            <div class="board-stat-item">
+              <span class="board-stat-label">SPA</span>
+              <span class="board-stat-val" style="color: #c77dff;">${bs.sp_attack}</span>
+            </div>
+            <div class="board-stat-item">
+              <span class="board-stat-label">SPD</span>
+              <span class="board-stat-val" style="color: #00f2fe;">${bs.sp_defense}</span>
+            </div>
+            <div class="board-stat-item">
+              <span class="board-stat-label">VEL</span>
+              <span class="board-stat-val" style="color: #f8d030;">${bs.speed}</span>
+            </div>
+          </div>
+
+          <!-- Meta (Item, Ability, Nature) -->
+          <div class="board-card-meta">
+            <div class="board-meta-row">
+              <span class="board-meta-label">🎒 Objeto:</span>
+              <span class="board-meta-val">${p.item || "Restos"}</span>
+            </div>
+            <div class="board-meta-row">
+              <span class="board-meta-label">✨ Habilidad:</span>
+              <span class="board-meta-val">${p.ability || "Presión"}</span>
+            </div>
+            <div class="board-meta-row">
+              <span class="board-meta-label">🧬 Naturaleza:</span>
+              <span class="board-meta-val">${p.nature || "Firme"}</span>
+            </div>
+          </div>
+
+          <!-- 4 Moves Grid -->
+          <div class="board-card-moves">
+            ${movesHtml}
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // Render Audit Section
+  if (auditContainer) {
+    if (!audit) {
+      auditContainer.innerHTML = `<div style="text-align:center; color: var(--text-secondary);">Auditoría táctica completada.</div>`;
+      return;
+    }
+
+    const critWeaknesses = audit.critical_vulnerabilities || [];
+    let weakHtml = "";
+    if (critWeaknesses.length === 0) {
+      weakHtml = `<div style="color: #55f3a0; font-size: 0.8rem;">✅ ¡Excelente sinergia! Sin debilidades críticas compartidas.</div>`;
+    } else {
+      weakHtml = `<div class="audit-badges-wrap">` + critWeaknesses.map(cw => {
+        const typeBadge = createTypeBadge(cw.type_name_es || cw.type);
+        return `
+          <div style="display:inline-flex; align-items:center; gap:4px; background:#29141b; border:1px solid #ff4757; padding:2px 6px; border-radius:6px; font-size:0.75rem;">
+            ${typeBadge}
+            <span style="color:#ff6b6b; font-weight:700;">x${cw.weak_count} débiles</span>
+          </div>
+        `;
+      }).join("") + `</div>`;
+    }
+
+    // Offensive Uncovered Types
+    const uncovered = audit.uncovered_types_offensively || [];
+    let covHtml = "";
+    if (uncovered.length === 0) {
+      covHtml = `<div style="color: #55f3a0; font-size: 0.8rem;">⚡ Cobertura ofensiva STAB total sobre todos los tipos.</div>`;
+    } else {
+      covHtml = `<div class="audit-badges-wrap">` + uncovered.map(t => {
+        return createTypeBadge(t);
+      }).join("") + `</div>`;
+    }
+
+    // STABs present
+    const stabs = audit.stabs_present || [];
+    const stabsHtml = `<div class="audit-badges-wrap">` + stabs.map(t => createTypeBadge(t)).join("") + `</div>`;
+
+    auditContainer.innerHTML = `
+      <div class="audit-grid">
+        <div>
+          <div class="audit-col-title" style="color: #ff6b6b;">
+            <span>⚠️ Vulnerabilidades Críticas de Equipo</span>
+          </div>
+          ${weakHtml}
+        </div>
+        <div>
+          <div class="audit-col-title" style="color: var(--accent-cyan);">
+            <span>⚔️ STABs Presentes en el Equipo</span>
+          </div>
+          ${stabsHtml}
+        </div>
+        <div>
+          <div class="audit-col-title" style="color: var(--accent-yellow);">
+            <span>🛡️ Tipos No Cubiertos Ofensivamente</span>
+          </div>
+          ${covHtml}
+        </div>
+      </div>
+    `;
+  }
 }
 
 // ---------------------------------------------------------------------

@@ -67,6 +67,43 @@ def get_index():
         return FileResponse(index_path)
     return {"message": "PokeEstratega-AI API online. Visita /docs para la documentación interactiva."}
 
+def enrich_pokemon_team_entry(p: Dict[str, Any]) -> Dict[str, Any]:
+    role = p.get("role") or exporter.determine_role(p)
+    profile = NATURES.get(role, NATURES["Balanced"])
+    if "role" not in p:
+        p["role"] = role
+    if "moves_custom" not in p or not p["moves_custom"]:
+        p["moves_custom"] = exporter.select_competitive_moves(p, role)
+    if "ability" not in p or not p["ability"]:
+        p["ability"] = p.get("hidden_ability") or (p["abilities"][0] if p.get("abilities") else "Presión")
+    if "item" not in p or not p["item"]:
+        p["item"] = profile["item"]
+    if "nature" not in p or not p["nature"]:
+        p["nature"] = profile["nature"]
+
+    enriched_moves = []
+    for m_str in p.get("moves_custom", []):
+        m_obj = parser.get_move(m_str)
+        if m_obj:
+            t_es = SPANISH_TYPE_NAMES.get(m_obj["type"].upper(), m_obj["type"].capitalize())
+            enriched_moves.append({
+                "name": m_obj["name"],
+                "type": t_es,
+                "category": m_obj.get("category", "Physical"),
+                "power": m_obj.get("power", 0),
+                "accuracy": m_obj.get("accuracy", 100)
+            })
+        else:
+            enriched_moves.append({
+                "name": m_str,
+                "type": "Normal",
+                "category": "Physical",
+                "power": 0,
+                "accuracy": 100
+            })
+    p["moves_details"] = enriched_moves
+    return p
+
 @app.post("/chat")
 def chat_endpoint(req: ChatRequest):
     session_id = req.session_id or str(uuid.uuid4())
@@ -87,7 +124,9 @@ def chat_endpoint(req: ChatRequest):
     try:
         final_state = poke_app.invoke(state_input)
         # Update session team
-        SESSIONS[session_id] = final_state.get("team", current_team)
+        raw_team = final_state.get("team", current_team)
+        enriched_team = [enrich_pokemon_team_entry(p) for p in raw_team]
+        SESSIONS[session_id] = enriched_team
         
         # Update last discussed pokemon
         if final_state.get("detected_pokemon"):
@@ -100,17 +139,7 @@ def chat_endpoint(req: ChatRequest):
             "response": final_state.get("response", ""),
             "intent": final_state.get("intent", "general"),
             "detected_pokemon": final_state.get("detected_pokemon", []),
-            "team": [
-                {
-                    "id": p["id"],
-                    "name": p["name"],
-                    "type1": p["type1"],
-                    "type2": p.get("type2"),
-                    "base_stats": p["base_stats"],
-                    "bst": p["bst"]
-                }
-                for p in SESSIONS[session_id]
-            ]
+            "team": enriched_team
         }
     except Exception as e:
         return {
@@ -122,11 +151,14 @@ def chat_endpoint(req: ChatRequest):
 @app.get("/team/{session_id}")
 def get_team(session_id: str):
     team = SESSIONS.get(session_id, [])
-    audit = type_chart.audit_team(team) if team else None
+    enriched_team = [enrich_pokemon_team_entry(p) for p in team]
+    SESSIONS[session_id] = enriched_team
+
+    audit = type_chart.audit_team(enriched_team) if enriched_team else None
     return {
         "session_id": session_id,
-        "team_size": len(team),
-        "team": team,
+        "team_size": len(enriched_team),
+        "team": enriched_team,
         "audit": audit
     }
 
@@ -143,25 +175,25 @@ def add_to_team(session_id: str, req: AddPokemonRequest):
     if any(p["name"].lower() == pkmn["name"].lower() for p in team):
         raise HTTPException(status_code=400, detail=f"{pkmn['name']} ya está en el equipo.")
     
-    team.append(pkmn)
+    entry = dict(pkmn)
+    enrich_pokemon_team_entry(entry)
+    team.append(entry)
     SESSIONS[session_id] = team
     return {"message": f"{pkmn['name']} añadido con éxito.", "team": team}
 
 @app.post("/team/{session_id}/add_custom")
 def add_custom_to_team(session_id: str, req: AddCustomPokemonRequest):
     team = SESSIONS.get(session_id, [])
-    if len(team) >= 6:
-        raise HTTPException(status_code=400, detail="El equipo ya tiene 6 Pokémon.")
-    
     base_pkmn = parser.get_pokemon(req.name)
     if not base_pkmn:
         raise HTTPException(status_code=404, detail=f"Pokémon '{req.name}' no encontrado.")
     
-    if any(p["name"].lower() == base_pkmn["name"].lower() for p in team):
-        raise HTTPException(status_code=400, detail=f"{base_pkmn['name']} ya está en el equipo.")
+    existing_idx = next((i for i, p in enumerate(team) if p["name"].lower() == base_pkmn["name"].lower()), -1)
+    if existing_idx == -1 and len(team) >= 6:
+        raise HTTPException(status_code=400, detail="El equipo ya tiene 6 Pokémon.")
     
-    # Create customized pokemon entry
-    role = exporter.determine_role(base_pkmn)
+    # Create or update customized pokemon entry
+    role = base_pkmn.get("role") or exporter.determine_role(base_pkmn)
     profile = NATURES.get(role, NATURES["Balanced"])
     
     custom_entry = dict(base_pkmn)
@@ -169,15 +201,23 @@ def add_custom_to_team(session_id: str, req: AddCustomPokemonRequest):
     custom_entry["ability"] = req.ability.strip() if req.ability else (base_pkmn.get("hidden_ability") or base_pkmn["abilities"][0])
     custom_entry["item"] = req.item.strip() if req.item else profile["item"]
     custom_entry["nature"] = req.nature.strip() if req.nature else profile["nature"]
+    custom_entry["role"] = role
+    enrich_pokemon_team_entry(custom_entry)
     
-    team.append(custom_entry)
+    if existing_idx != -1:
+        team[existing_idx] = custom_entry
+        action_verb = "actualizado"
+    else:
+        team.append(custom_entry)
+        action_verb = "añadido"
+
     SESSIONS[session_id] = team
     
     moves_str = ", ".join(custom_entry["moves_custom"])
-    chat_summary = f"He añadido a **{base_pkmn['name']}** a tu equipo (Objeto: *{custom_entry['item']}*, Habilidad: *{custom_entry['ability']}*, Naturaleza: *{custom_entry['nature']}*, Movimientos: *{moves_str}*)."
+    chat_summary = f"He {action_verb} a **{base_pkmn['name']}** en tu equipo (Objeto: *{custom_entry['item']}*, Habilidad: *{custom_entry['ability']}*, Naturaleza: *{custom_entry['nature']}*, Movimientos: *{moves_str}*)."
     
     return {
-        "message": f"{base_pkmn['name']} personalizado añadido con éxito.",
+        "message": f"{base_pkmn['name']} {action_verb} con éxito.",
         "team": team,
         "chat_summary": chat_summary,
         "pokemon": custom_entry

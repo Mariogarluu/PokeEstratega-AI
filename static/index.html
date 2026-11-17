@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PokeEstratega-AI | Coach de Combate & Teambuilder</title>
-  <link rel="stylesheet" href="/static/style.css?v=c2">
+  <link rel="stylesheet" href="/static/style.css?v=c4">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
@@ -76,13 +76,16 @@
         </div>
         <div class="team-actions">
           <button class="action-btn success" onclick="openBuilderModal()">
-            <span>➕ Añadir Pokémon</span>
+            <span>➕ Añadir</span>
           </button>
-          <button class="action-btn primary" onclick="openShowdownModal()">
-            <span>📋 Ver Showdown</span>
+          <button class="action-btn primary" onclick="openTeamBoardModal()">
+            <span>👁️ Ver Equipo</span>
+          </button>
+          <button class="action-btn" onclick="openShowdownModal()">
+            <span>📋 Showdown</span>
           </button>
           <button class="action-btn" onclick="clearTeam()">
-            <span>🗑️ Vaciar Equipo</span>
+            <span>🗑️ Vaciar</span>
           </button>
         </div>
       </div>
@@ -254,6 +257,41 @@
     </div>
   </div>
 
-  <script src="/static/app.js?v=c2"></script>
+  <!-- Full Team Tactical Board Modal (6 in 1) -->
+  <div class="modal-overlay" id="team-board-modal">
+    <div class="modal-content team-board-modal-content">
+      <div class="modal-header">
+        <h3 style="color:#fff; display:flex; align-items:center; gap:8px;">
+          <span>🛡️ Tablero Táctico del Equipo</span>
+          <span style="font-size:0.85rem; color:var(--accent-cyan);" id="board-team-counter">(0 / 6)</span>
+        </h3>
+        <button onclick="closeTeamBoardModal()" class="modal-close-btn">✕</button>
+      </div>
+
+      <!-- Grid of up to 6 detailed Pokémon cards -->
+      <div class="team-board-grid" id="team-board-grid">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Team Audit Summary Box -->
+      <div class="team-board-audit" id="team-board-audit">
+        <!-- Audit info -->
+      </div>
+
+      <div class="team-board-footer">
+        <div style="display:flex; gap:8px;">
+          <button class="action-btn success" onclick="closeTeamBoardModal(); openBuilderModal();">
+            <span>➕ Añadir Pokémon</span>
+          </button>
+          <button class="action-btn primary" onclick="closeTeamBoardModal(); openShowdownModal();">
+            <span>📋 Exportar Showdown</span>
+          </button>
+        </div>
+        <button class="action-btn" onclick="closeTeamBoardModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js?v=c4"></script>
 </body>
 </html>

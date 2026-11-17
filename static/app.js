@@ -87,6 +87,31 @@ let teamBuildState = {
   archetype: "defensivo"
 };
 
+let currentMobileView = "chat";
+
+function switchMobileView(view) {
+  currentMobileView = view;
+  const container = document.querySelector(".main-container");
+  const btnChat = document.getElementById("btn-mobile-chat");
+  const btnTeam = document.getElementById("btn-mobile-team");
+
+  if (view === "team") {
+    if (container) {
+      container.classList.add("mobile-show-team");
+      container.classList.remove("mobile-show-chat");
+    }
+    if (btnTeam) btnTeam.classList.add("active");
+    if (btnChat) btnChat.classList.remove("active");
+  } else {
+    if (container) {
+      container.classList.add("mobile-show-chat");
+      container.classList.remove("mobile-show-team");
+    }
+    if (btnChat) btnChat.classList.add("active");
+    if (btnTeam) btnTeam.classList.remove("active");
+  }
+}
+
 async function syncTeam() {
   try {
     const res = await fetch(`/team/${sessionId}`);
@@ -124,6 +149,10 @@ function renderTeam(teamList) {
   currentTeamList = teamList || [];
   const container = document.getElementById("team-slots-container");
   const counter = document.getElementById("team-counter");
+  const mobileCounter = document.getElementById("mobile-team-counter");
+  if (mobileCounter) {
+    mobileCounter.textContent = `${currentTeamList.length} / 6`;
+  }
   if (counter) {
     if (currentTeamList.length >= 6) {
       counter.innerHTML = `<span style="color:#00FF66; font-weight:800;">6 / 6 (COMPLETO)</span>`;

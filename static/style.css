@@ -24,6 +24,55 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #2b334d #0e111d;
+}
+
+/* ==========================================================================
+   Custom Native Retro-Arcade Brutalist Scrollbars
+   ========================================================================== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0e111d;
+  border-left: 2px solid #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #283149;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-yellow);
+  border-color: #000000;
+  box-shadow: inset 1px 1px 0px rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--accent-cyan);
+  border-color: #000000;
+}
+
+::-webkit-scrollbar-corner {
+  background: #0b0d14;
+}
+
+/* Specific inner scrollable containers with borders */
+.chat-history::-webkit-scrollbar-track,
+.dashboard-section::-webkit-scrollbar-track,
+.builder-grid::-webkit-scrollbar-track,
+.moves-pool-grid::-webkit-scrollbar-track,
+.items-selection-grid::-webkit-scrollbar-track,
+.team-board-grid::-webkit-scrollbar-track,
+.modal-textarea::-webkit-scrollbar-track {
+  background: #111422;
+  border-left: 2px solid #000000;
 }
 
 body {
@@ -31,6 +80,7 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1721,4 +1771,264 @@ body {
   background: #23283c !important;
   color: #fff !important;
   font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   Mobile Navigation Switcher (Screens <= 900px)
+   ========================================================================== */
+.mobile-nav-bar {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .mobile-nav-bar {
+    display: flex;
+    background: #121524;
+    border-bottom: 2.5px solid #000000;
+    box-shadow: 0 3px 0px #000000;
+    padding: 8px 12px;
+    gap: 8px;
+    z-index: 15;
+    flex-shrink: 0;
+  }
+
+  .mobile-nav-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 12px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #a0aec0;
+    background: #171c2d;
+    border: 2px solid #000000;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-brutal-sm);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mobile-nav-btn.active {
+    color: #000000;
+    background: var(--accent-yellow);
+    border-color: #000000;
+    box-shadow: 2px 2px 0px #000000;
+  }
+
+  .mobile-nav-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px #000000;
+  }
+
+  /* Main Container responsive switching */
+  .main-container {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    grid-template-columns: none !important;
+  }
+
+  /* Default or Chat mode */
+  .main-container .chat-section {
+    display: flex !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-right: none !important;
+  }
+
+  .main-container .dashboard-section {
+    display: none !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+  }
+
+  /* Team mode */
+  .main-container.mobile-show-team .chat-section {
+    display: none !important;
+  }
+
+  .main-container.mobile-show-team .dashboard-section {
+    display: flex !important;
+  }
+}
+
+/* ==========================================================================
+   Responsive Adaptations across Screen Resolutions
+   ========================================================================== */
+
+/* Laptop screens (901px - 1200px) */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .main-container {
+    grid-template-columns: 1fr 370px;
+  }
+  .app-header {
+    padding: 10px 16px;
+  }
+  .brand-title {
+    font-size: 1.15rem;
+  }
+  .dash-card {
+    padding: 14px;
+  }
+}
+
+/* Tablets and Large Mobile (601px - 900px) */
+@media (max-width: 900px) {
+  .modal-content {
+    width: 92vw;
+    max-width: 92vw;
+    padding: 18px;
+  }
+  .team-board-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+/* Smartphones (360px - 600px) */
+@media (max-width: 600px) {
+  .app-header {
+    padding: 8px 12px;
+  }
+  .brand {
+    gap: 8px;
+  }
+  .brand-icon {
+    font-size: 18px;
+    padding: 4px 6px;
+  }
+  .brand-title {
+    font-size: 1.02rem;
+  }
+  .brand-subtitle {
+    display: none;
+  }
+  .header-status {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
+
+  .chat-history {
+    padding: 12px 10px;
+    gap: 12px;
+  }
+  .message {
+    max-width: 96%;
+    gap: 8px;
+  }
+  .msg-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    border-width: 1.5px;
+  }
+  .msg-content {
+    padding: 10px 12px;
+    font-size: 0.88rem;
+    border-width: 2px;
+  }
+
+  .chat-input-bar {
+    padding: 10px 8px;
+    gap: 6px;
+  }
+  .chat-input {
+    padding: 10px 12px;
+    font-size: 16px; /* Prevents auto-zoom on iOS */
+    border-width: 2px;
+  }
+  .send-btn {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    border-width: 2px;
+  }
+  .send-btn span {
+    display: none; /* Icon only on phones to leave maximum room for input */
+  }
+
+  .chat-arcade-buttons {
+    gap: 6px;
+  }
+  .arcade-btn-choice {
+    font-size: 0.82rem;
+    padding: 8px 10px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .team-actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .action-btn {
+    padding: 9px 8px;
+    font-size: 0.8rem;
+  }
+
+  /* Modals on small phones */
+  .modal-content {
+    width: 96vw;
+    max-width: 96vw;
+    padding: 12px;
+    max-height: 94vh;
+  }
+  .builder-modal-content {
+    padding: 12px 10px;
+  }
+  .builder-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 6px;
+  }
+  .active-slots-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .moves-pool-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .category-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .cat-pill {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
+  .builder-footer-bar {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .builder-footer-bar > div {
+    display: flex;
+    gap: 6px;
+  }
+  .builder-footer-bar .action-btn {
+    flex: 1;
+  }
+  .team-board-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .team-board-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .team-board-footer > div {
+    display: flex;
+    gap: 6px;
+  }
+  .team-board-footer .action-btn {
+    flex: 1;
+  }
 }

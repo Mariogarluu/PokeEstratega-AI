@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PokeEstratega-AI | Coach de Combate & Teambuilder</title>
-  <link rel="stylesheet" href="/static/style.css?v=c6">
+  <link rel="stylesheet" href="/static/style.css?v=c7">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
@@ -24,8 +24,18 @@
     </div>
   </header>
 
+  <!-- Mobile Navigation Switcher (Screens <= 900px) -->
+  <nav class="mobile-nav-bar" id="mobile-nav-bar">
+    <button class="mobile-nav-btn active" id="btn-mobile-chat" onclick="switchMobileView('chat')">
+      <span>💬 Chat Táctico</span>
+    </button>
+    <button class="mobile-nav-btn" id="btn-mobile-team" onclick="switchMobileView('team')">
+      <span>🛡️ Mi Equipo (<span id="mobile-team-counter">0 / 6</span>)</span>
+    </button>
+  </nav>
+
   <!-- Main Grid -->
-  <div class="main-container">
+  <div class="main-container mobile-show-chat">
 
     <!-- Left: Chat Section -->
     <section class="chat-section">
@@ -292,6 +302,6 @@
     </div>
   </div>
 
-  <script src="/static/app.js?v=c8"></script>
+  <script src="/static/app.js?v=c9"></script>
 </body>
 </html>

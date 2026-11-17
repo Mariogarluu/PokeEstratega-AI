@@ -11,5 +11,6 @@ htmlcov/
 *.log
 .env
 chroma_db/
+static/cache_sprites/
 .DS_Store
 Thumbs.db

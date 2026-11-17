@@ -19,21 +19,21 @@ SETUP_UTILITY_MOVES = {
 
 
 ALL_NATURES = [
-    {"name": "Adamant", "label": "Adamant (+Atk, -SpA)", "desc": "Firme (+Ataque, -Atq.Esp)"},
-    {"name": "Jolly", "label": "Jolly (+Spe, -SpA)", "desc": "Alegre (+Velocidad, -Atq.Esp)"},
-    {"name": "Modest", "label": "Modest (+SpA, -Atk)", "desc": "Modesta (+Atq.Esp, -Ataque)"},
-    {"name": "Timid", "label": "Timid (+Spe, -Atk)", "desc": "Miedosa (+Velocidad, -Ataque)"},
-    {"name": "Impish", "label": "Impish (+Def, -SpA)", "desc": "Agitada (+Defensa, -Atq.Esp)"},
-    {"name": "Calm", "label": "Calm (+SpD, -Atk)", "desc": "Serena (+Def.Esp, -Ataque)"},
-    {"name": "Bold", "label": "Bold (+Def, -Atk)", "desc": "Osada (+Defensa, -Ataque)"},
-    {"name": "Careful", "label": "Careful (+SpD, -SpA)", "desc": "Cauta (+Def.Esp, -Atq.Esp)"},
-    {"name": "Naive", "label": "Naive (+Spe, -SpD)", "desc": "Ingenua (+Velocidad, -Def.Esp)"},
-    {"name": "Hasty", "label": "Hasty (+Spe, -Def)", "desc": "Activa (+Velocidad, -Defensa)"},
-    {"name": "Quiet", "label": "Quiet (+SpA, -Spe)", "desc": "Mansa (+Atq.Esp, -Velocidad)"},
-    {"name": "Brave", "label": "Brave (+Atk, -Spe)", "desc": "Audaz (+Ataque, -Velocidad)"},
-    {"name": "Relaxed", "label": "Relaxed (+Def, -Spe)", "desc": "Plácida (+Defensa, -Velocidad)"},
-    {"name": "Sassy", "label": "Sassy (+SpD, -Spe)", "desc": "Grosera (+Def.Esp, -Velocidad)"},
-    {"name": "Hardy", "label": "Hardy (Neutral)", "desc": "Fuerte (Neutral)"}
+    {"name": "Adamant", "label": "Adamant (+Atk, -SpA)", "desc": "Firme (+Ataque, -Atq.Esp)", "plus": "Ataque", "minus": "Atq.Esp"},
+    {"name": "Jolly", "label": "Jolly (+Spe, -SpA)", "desc": "Alegre (+Velocidad, -Atq.Esp)", "plus": "Velocidad", "minus": "Atq.Esp"},
+    {"name": "Modest", "label": "Modest (+SpA, -Atk)", "desc": "Modesta (+Atq.Esp, -Ataque)", "plus": "Atq.Esp", "minus": "Ataque"},
+    {"name": "Timid", "label": "Timid (+Spe, -Atk)", "desc": "Miedosa (+Velocidad, -Ataque)", "plus": "Velocidad", "minus": "Ataque"},
+    {"name": "Impish", "label": "Impish (+Def, -SpA)", "desc": "Agitada (+Defensa, -Atq.Esp)", "plus": "Defensa", "minus": "Atq.Esp"},
+    {"name": "Calm", "label": "Calm (+SpD, -Atk)", "desc": "Serena (+Def.Esp, -Ataque)", "plus": "Def.Esp", "minus": "Ataque"},
+    {"name": "Bold", "label": "Bold (+Def, -Atk)", "desc": "Osada (+Defensa, -Ataque)", "plus": "Defensa", "minus": "Ataque"},
+    {"name": "Careful", "label": "Careful (+SpD, -SpA)", "desc": "Cauta (+Def.Esp, -Atq.Esp)", "plus": "Def.Esp", "minus": "Atq.Esp"},
+    {"name": "Naive", "label": "Naive (+Spe, -SpD)", "desc": "Ingenua (+Velocidad, -Def.Esp)", "plus": "Velocidad", "minus": "Def.Esp"},
+    {"name": "Hasty", "label": "Hasty (+Spe, -Def)", "desc": "Activa (+Velocidad, -Defensa)", "plus": "Velocidad", "minus": "Defensa"},
+    {"name": "Quiet", "label": "Quiet (+SpA, -Spe)", "desc": "Mansa (+Atq.Esp, -Velocidad)", "plus": "Atq.Esp", "minus": "Velocidad"},
+    {"name": "Brave", "label": "Brave (+Atk, -Spe)", "desc": "Audaz (+Ataque, -Velocidad)", "plus": "Ataque", "minus": "Velocidad"},
+    {"name": "Relaxed", "label": "Relaxed (+Def, -Spe)", "desc": "Plácida (+Defensa, -Velocidad)", "plus": "Defensa", "minus": "Velocidad"},
+    {"name": "Sassy", "label": "Sassy (+SpD, -Spe)", "desc": "Grosera (+Def.Esp, -Velocidad)", "plus": "Def.Esp", "minus": "Velocidad"},
+    {"name": "Hardy", "label": "Hardy (Neutral)", "desc": "Fuerte (Neutral)", "plus": "Equilibrado", "minus": "Equilibrado"}
 ]
 
 COMPETITIVE_ITEMS = [

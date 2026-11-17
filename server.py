@@ -12,8 +12,12 @@ from engine.type_chart import TypeChart, SPANISH_TYPE_NAMES, TYPE_COLORS
 from engine.showdown import ShowdownExporter, ALL_NATURES, COMPETITIVE_ITEMS, NATURES
 from graph.graph import poke_app
 
+from PIL import Image
+
 BASE_DIR = os.path.dirname(__file__)
 STATIC_DIR = os.path.join(BASE_DIR, "static")
+SPRITE_CACHE_DIR = os.path.join(STATIC_DIR, "cache_sprites")
+os.makedirs(SPRITE_CACHE_DIR, exist_ok=True)
 LOCAL_BATTLERS_DIR = r"C:\Users\mario\Desktop\Juego\Pokemon Anil V3.52\Graphics\Battlers"
 LOCAL_ICONS_DIR = r"C:\Users\mario\Desktop\Juego\Pokemon Anil V3.52\Graphics\Icons"
 
@@ -197,11 +201,21 @@ def get_pokemon_custom_data(name_or_id: str):
     abilities = []
     for a in pkmn.get("abilities", []):
         ab_obj = parser.get_ability(a)
-        abilities.append({"internal": a, "name": ab_obj["name"] if ab_obj else a, "hidden": False})
+        abilities.append({
+            "internal": a,
+            "name": ab_obj["name"] if ab_obj else a,
+            "description": ab_obj.get("description", "") if ab_obj else "",
+            "hidden": False
+        })
     if pkmn.get("hidden_ability"):
         ha = pkmn["hidden_ability"]
         ha_obj = parser.get_ability(ha)
-        abilities.append({"internal": ha, "name": f"{ha_obj['name'] if ha_obj else ha} (Oculta)", "hidden": True})
+        abilities.append({
+            "internal": ha,
+            "name": ha_obj["name"] if ha_obj else ha,
+            "description": ha_obj.get("description", "") if ha_obj else "",
+            "hidden": True
+        })
         
     default_ability = abilities[-1]["name"] if abilities else "Presión"
     
@@ -285,26 +299,48 @@ def healthcheck():
         "total_abilities": len(parser.abilities)
     }
 
+def crop_first_frame(src_path: str, dst_path: str) -> bool:
+    try:
+        with Image.open(src_path) as img:
+            w, h = img.size
+            if w > h * 1.1:
+                # Square frame from the left
+                frame = img.crop((0, 0, h, h))
+                frame.save(dst_path, "PNG")
+            else:
+                img.save(dst_path, "PNG")
+        return True
+    except Exception:
+        return False
+
 @app.get("/sprite/{poke_id}")
 def get_pokemon_sprite(poke_id: int):
-    filename = f"{poke_id:03d}.png"
-    local_path = os.path.join(LOCAL_BATTLERS_DIR, filename)
-    if os.path.exists(local_path):
-        return FileResponse(local_path, media_type="image/png")
-    local_path2 = os.path.join(LOCAL_BATTLERS_DIR, f"{poke_id}.png")
-    if os.path.exists(local_path2):
-        return FileResponse(local_path2, media_type="image/png")
+    cached_path = os.path.join(SPRITE_CACHE_DIR, f"battler_{poke_id}.png")
+    if os.path.exists(cached_path):
+        return FileResponse(cached_path, media_type="image/png")
+        
+    for fn in [f"{poke_id:03d}.png", f"{poke_id}.png"]:
+        src = os.path.join(LOCAL_BATTLERS_DIR, fn)
+        if os.path.exists(src):
+            if crop_first_frame(src, cached_path):
+                return FileResponse(cached_path, media_type="image/png")
+            return FileResponse(src, media_type="image/png")
+            
     return RedirectResponse(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{poke_id}.png")
 
 @app.get("/icon/{poke_id}")
 def get_pokemon_icon(poke_id: int):
-    filename = f"icon{poke_id:03d}.png"
-    local_path = os.path.join(LOCAL_ICONS_DIR, filename)
-    if os.path.exists(local_path):
-        return FileResponse(local_path, media_type="image/png")
-    local_path2 = os.path.join(LOCAL_ICONS_DIR, f"icon{poke_id}.png")
-    if os.path.exists(local_path2):
-        return FileResponse(local_path2, media_type="image/png")
+    cached_path = os.path.join(SPRITE_CACHE_DIR, f"icon_{poke_id}.png")
+    if os.path.exists(cached_path):
+        return FileResponse(cached_path, media_type="image/png")
+        
+    for fn in [f"icon{poke_id:03d}.png", f"icon{poke_id}.png"]:
+        src = os.path.join(LOCAL_ICONS_DIR, fn)
+        if os.path.exists(src):
+            if crop_first_frame(src, cached_path):
+                return FileResponse(cached_path, media_type="image/png")
+            return FileResponse(src, media_type="image/png")
+            
     return RedirectResponse(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/{poke_id}.png")
 
 # Mount static folder if exists

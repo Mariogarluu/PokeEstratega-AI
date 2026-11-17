@@ -136,49 +136,101 @@
 
         <div class="config-top-card" id="config-top-card"></div>
 
-        <div class="config-form-grid">
-          <div class="config-col">
-            <h4 class="config-subtitle">⚔️ 4 Movimientos (Personalizables)</h4>
-            <div class="move-slot-group">
-              <label>Movimiento 1:</label>
-              <select id="move-slot-1" class="config-select"></select>
+        <!-- 4 Tabs Navigation -->
+        <div class="builder-nav-tabs">
+          <button class="nav-tab active" id="tab-btn-moves" onclick="switchBuilderTab('moves')">
+            <span>⚔️ Movimientos</span>
+            <span class="tab-badge" id="moves-count-badge">4/4</span>
+          </button>
+          <button class="nav-tab" id="tab-btn-ability" onclick="switchBuilderTab('ability')">
+            <span>✨ Habilidad</span>
+            <span class="tab-choice-label" id="tab-label-ability"></span>
+          </button>
+          <button class="nav-tab" id="tab-btn-item" onclick="switchBuilderTab('item')">
+            <span>🎒 Objeto</span>
+            <span class="tab-choice-label" id="tab-label-item"></span>
+          </button>
+          <button class="nav-tab" id="tab-btn-nature" onclick="switchBuilderTab('nature')">
+            <span>🧬 Naturaleza</span>
+            <span class="tab-choice-label" id="tab-label-nature"></span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Movimientos (Drag & Drop + Slots) -->
+        <div class="tab-pane active" id="tab-content-moves">
+          <div class="slots-header">
+            <div>
+              <span style="font-weight:700; color:#fff;">Ranuras Activas</span>
+              <span style="font-size:0.8rem; color:var(--text-secondary); margin-left:6px;">(Haz clic o arrastra para equipar/desequipar)</span>
             </div>
-            <div class="move-slot-group">
-              <label>Movimiento 2:</label>
-              <select id="move-slot-2" class="config-select"></select>
-            </div>
-            <div class="move-slot-group">
-              <label>Movimiento 3:</label>
-              <select id="move-slot-3" class="config-select"></select>
-            </div>
-            <div class="move-slot-group">
-              <label>Movimiento 4:</label>
-              <select id="move-slot-4" class="config-select"></select>
+            <button class="btn-restore-recom" onclick="restoreRecommendedMoves()">✨ Restaurar 4 Recomendados</button>
+          </div>
+
+          <!-- 4 Active Slots -->
+          <div class="active-slots-grid" id="active-move-slots">
+            <!-- 4 slots populated dynamically -->
+          </div>
+
+          <!-- Drawer of All Learnable Moves -->
+          <div class="drawer-header">
+            <span style="font-weight:700; color:#fff;">Cajón de Todos los Movimientos Disponibles</span>
+            <div class="drawer-filters">
+              <input type="text" id="move-pool-search" class="pool-search-input" placeholder="Buscar movimiento..." oninput="filterMovesPool()">
+              <div class="category-pills">
+                <button class="cat-pill active" onclick="setCategoryFilter('ALL', this)">Todos</button>
+                <button class="cat-pill" onclick="setCategoryFilter('Physical', this)">Físico</button>
+                <button class="cat-pill" onclick="setCategoryFilter('Special', this)">Especial</button>
+                <button class="cat-pill" onclick="setCategoryFilter('Status', this)">Estado</button>
+              </div>
             </div>
           </div>
 
-          <div class="config-col">
-            <h4 class="config-subtitle">🛡️ Atributos Competitivos</h4>
-            <div class="move-slot-group">
-              <label>Habilidad:</label>
-              <select id="config-ability" class="config-select"></select>
-            </div>
-            <div class="move-slot-group">
-              <label>Objeto equipado:</label>
-              <select id="config-item" class="config-select"></select>
-            </div>
-            <div class="move-slot-group">
-              <label>Naturaleza:</label>
-              <select id="config-nature" class="config-select"></select>
-            </div>
+          <div class="moves-pool-grid" id="moves-pool-container">
+            <!-- Move cards with attack-type colors populated dynamically -->
           </div>
         </div>
 
-        <div class="modal-footer-actions">
-          <button class="action-btn" onclick="backToPokemonSelect()">Cancelar</button>
-          <button class="action-btn success" id="btn-save-custom-pokemon" onclick="saveCustomPokemon()">
-            <span>⚔️ Guardar en el Equipo</span>
-          </button>
+        <!-- Tab 2: Habilidad -->
+        <div class="tab-pane" id="tab-content-ability" style="display:none;">
+          <div class="tab-section-title">Habilidad Recomendada</div>
+          <div id="recom-ability-card" class="recom-item-container"></div>
+
+          <div class="tab-section-title" style="margin-top:16px;">Todas las Habilidades Disponibles</div>
+          <div id="all-abilities-list" class="abilities-selection-list"></div>
+        </div>
+
+        <!-- Tab 3: Objeto -->
+        <div class="tab-pane" id="tab-content-item" style="display:none;">
+          <div class="tab-section-title">Objeto Recomendado</div>
+          <div id="recom-item-card" class="recom-item-container"></div>
+
+          <div class="tab-section-title" style="margin-top:16px;">Cajón de Objetos Competitivos</div>
+          <div class="items-search-box">
+            <input type="text" id="item-search" class="pool-search-input" placeholder="Buscar objeto (ej: Vidasfera, Restos, Pañuelo...)..." oninput="filterItemsList()">
+          </div>
+          <div id="all-items-grid" class="items-selection-grid"></div>
+        </div>
+
+        <!-- Tab 4: Naturaleza -->
+        <div class="tab-pane" id="tab-content-nature" style="display:none;">
+          <div class="tab-section-title">Naturaleza Recomendada</div>
+          <div id="recom-nature-card" class="recom-item-container"></div>
+
+          <div class="tab-section-title" style="margin-top:16px;">Todas las Naturalezas</div>
+          <div id="all-natures-grid" class="natures-selection-grid"></div>
+        </div>
+
+        <!-- Modal Footer Summary & Save -->
+        <div class="builder-footer-bar">
+          <div class="footer-summary" id="footer-build-summary">
+            <!-- Mini summary of build -->
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="action-btn" onclick="backToPokemonSelect()">Cancelar</button>
+            <button class="action-btn success" id="btn-save-custom-pokemon" onclick="saveCustomPokemon()">
+              <span>⚔️ Guardar en el Equipo</span>
+            </button>
+          </div>
         </div>
       </div>
 

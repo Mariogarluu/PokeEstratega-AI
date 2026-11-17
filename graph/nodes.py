@@ -1,12 +1,21 @@
+import os
 import re
 from typing import Dict, Any, List
+from dotenv import load_dotenv
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_ollama import ChatOllama
+try:
+    from langchain_groq import ChatGroq
+except ImportError:
+    ChatGroq = None
+
 from engine.pbs_parser import PBSParser
 from engine.type_chart import TypeChart, SPANISH_TYPE_NAMES, TYPE_COLORS
 from engine.showdown import ShowdownExporter
 from engine.indexing import get_vectorstore
 from graph.state import PokeState
+
+load_dotenv()
 
 parser = PBSParser()
 type_chart = TypeChart(parser.types)
@@ -216,15 +225,40 @@ REGLAS ESTRICTAS DE SEGURIDAD Y DOMINIO (GUARDRAILS):
 5. Si el usuario pide añadir o quitar miembros o exportar a Showdown, confirma la acción claramente y ofrece una sugerencia táctica para complementar el equipo.
 6. Responde siempre en español."""
 
-    try:
-        llm = ChatOllama(model="llama3.1:8b", base_url="http://localhost:11434", temperature=0.2)
-        response = llm.invoke([
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=query)
-        ])
-        res_text = response.content
-    except Exception as e:
-        # Fallback if Ollama is busy or not loaded
-        res_text = f"{context}\n\n*(Nota técnica: Datos verificados generados por el motor determinista)*"
+    res_text = ""
+    groq_api_key = os.getenv("GROQ_API_KEY", "").strip()
+    groq_model = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b").strip()
+
+    # 1. Primary: Ultra-fast Cloud Groq LLM
+    if groq_api_key and ChatGroq:
+        try:
+            llm = ChatGroq(
+                groq_api_key=groq_api_key,
+                model_name=groq_model,
+                temperature=0.3
+            )
+            response = llm.invoke([
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=query)
+            ])
+            res_text = response.content
+        except Exception as e:
+            print(f"[PokeEstratega] Error invocando Groq: {e}")
+
+    # 2. Secondary fallback: Local Ollama
+    if not res_text:
+        try:
+            llm = ChatOllama(model="llama3.1:8b", base_url="http://localhost:11434", temperature=0.2)
+            response = llm.invoke([
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=query)
+            ])
+            res_text = response.content
+        except Exception as e:
+            print(f"[PokeEstratega] Error invocando Ollama: {e}")
+
+    # 3. Tertiary fallback: Mathematical deterministic engine
+    if not res_text:
+        res_text = f"{context}\n\n*(Nota técnica: Datos tácticos verificados generados por el motor determinista)*"
 
     return {"response": res_text}

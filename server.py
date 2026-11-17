@@ -341,7 +341,7 @@ def get_pokemon_icon(poke_id: int):
                 return FileResponse(cached_path, media_type="image/png", headers={"Cache-Control": "no-cache, must-revalidate"})
             return FileResponse(src, media_type="image/png")
             
-    return RedirectResponse(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/{poke_id}.png")
+    return RedirectResponse(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/icons/{poke_id}.png")
 
 # Mount static folder if exists
 if os.path.exists(STATIC_DIR):

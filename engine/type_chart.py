@@ -154,26 +154,26 @@ class TypeChart:
 
         # Competitive pools per archetype
         defensive_pool = [
-            ("Corviknight", "Special Wall / Defogger", "Inmune a Tierra y Veneno, resiste Hada y Dragón. Pivote supremo."),
-            ("Toxapex", "Physical Wall / Toxico", "Muro venenoso infranqueable, resiste Hada, Lucha y Hielo con Regeneración."),
-            ("Ferrothorn", "Hazard Setter / Spikes", "Resiste Dragón, Hada y Agua. Coloca púas y desgasta con Punta Acero."),
-            ("Blissey", "Special Wall Cleric", "Esponja especial absoluta, amortigua ataques psíquicos y especiales."),
-            ("Slowbro", "Physical Wall / Pivot", "Regeneración y cobertura para absorber golpes de lucha, acero y fuego."),
-            ("Gliscor", "Stall Breaker / Toxic Orb", "Inmune a Tierra y Eléctrico, cura pasiva y desgaste masivo."),
-            ("Skarmory", "Physical Spikes Wall", "Muro físico clásico de púas e inmunidad a tierra."),
-            ("Clefable", "Unaware Cleric", "Tipo Hada puro, anula boosts rivales con Ignorante y cubre dragones."),
-            ("Gastrodon", "Water / Ground Tank", "Inmunidad a Agua y Eléctrico con Colector, ideal ante lluvia."),
-            ("Heatran", "Special Tank / Trapper", "Resistencias masivas a 10 tipos e inmunidad a fuego con Absorbe Fuego.")
+            ("Corviknight", "Muralla Especial / Antitrampas", "Inmune a Tierra y Veneno, resiste Hada y Dragón. Pivote defensivo supremo."),
+            ("Toxapex", "Muralla Física / Tóxico", "Muro venenoso infranqueable, resiste Hada, Lucha y Hielo con Regeneración."),
+            ("Ferrothorn", "Pone-Trampas / Púas", "Resiste Dragón, Hada y Agua. Coloca púas y desgasta con Punta Acero."),
+            ("Blissey", "Muralla Especial / Clérigo", "Esponja especial absoluta, amortigua ataques psíquicos y especiales."),
+            ("Slowbro", "Muralla Física / Pivote", "Regeneración y cobertura para absorber golpes de lucha, acero y fuego."),
+            ("Gliscor", "Rompemuros / Inmunidades", "Inmune a Tierra y Eléctrico, cura pasiva y desgaste masivo ante muros rivales."),
+            ("Skarmory", "Muralla Física / Púas", "Muro físico clásico de púas e inmunidad a tierra."),
+            ("Clefable", "Clérigo / Ignorante", "Tipo Hada puro, anula boosts rivales con Ignorante y frena dragones."),
+            ("Gastrodon", "Tanque Agua / Tierra", "Inmunidad a Agua y Eléctrico con Colector, ideal ante lluvia."),
+            ("Heatran", "Tanque Especial / Trampa", "Resistencias masivas a 10 tipos e inmunidad a fuego con Absorbe Fuego.")
         ]
 
         offensive_pool = [
-            ("Dragapult", "Fast Special Sweeper", "Velocidad ridícula (142), revienta con ataques fantasma y dragón."),
-            ("Volcarona", "Quiver Dance Sweeper", "Danza Aleteo y barre equipos enteros con Fuego/Bicho."),
-            ("Kartana", "Physical Wallbreaker", "Ataque base 181 monstruoso con Ultraimpulso."),
-            ("Greninja", "Protean Attacker", "Versatilidad total y cobertura ofensiva universal."),
-            ("Weavile", "Ice / Dark Revenge Killer", "Destruye dragones, tierras y voladores con Chuzos y Desarme."),
-            ("Scizor", "Bullet Punch Cleaner", "Puño Bala potenciado por Experto con Danza Espada."),
-            ("Gengar", "Ghost / Poison Nuke", "Pegada especial inmediata y alta velocidad.")
+            ("Dragapult", "Atacante Especial Rápido", "Velocidad ridícula (142), revienta con ataques fantasma y dragón."),
+            ("Volcarona", "Sweeper Danza Aleteo", "Danza Aleteo y barre equipos enteros con Fuego/Bicho."),
+            ("Kartana", "Rompemuros Físico", "Ataque base 181 monstruoso con Ultraimpulso."),
+            ("Greninja", "Atacante Mutatipo", "Versatilidad total y cobertura ofensiva universal."),
+            ("Weavile", "Rematador Hielo / Siniestro", "Destruye dragones, tierras y voladores con Chuzos y Desarme."),
+            ("Scizor", "Rematador Puño Bala", "Puño Bala potenciado por Experto con Danza Espada."),
+            ("Gengar", "Atacante Especial Explosivo", "Pegada especial inmediata y alta velocidad.")
         ]
 
         balanced_pool = defensive_pool[:5] + offensive_pool[:5]
@@ -247,7 +247,7 @@ class TypeChart:
                 "raw_types": [t1] + ([t2] if t2 else []),
                 "badge_label": badge_label,
                 "reason": reason,
-                "item": "Restos" if "Wall" in role_title or "Tank" in role_title else "Vidasfera",
+                "item": "Restos" if any(k in role_title for k in ["Wall", "Muralla", "Tank", "Tanque", "Rompemuros", "Clérigo", "Púas"]) else "Vidasfera",
                 "ability": ability_es
             })
 

@@ -67,11 +67,37 @@ def get_index():
         return FileResponse(index_path)
     return {"message": "PokeEstratega-AI API online. Visita /docs para la documentación interactiva."}
 
+ROLE_TRANSLATIONS_ES = {
+    "physical wall": "Muralla Física",
+    "special wall": "Muralla Especial",
+    "stall breaker": "Rompemuros",
+    "wallbreaker": "Rompemuros",
+    "physical wallbreaker": "Rompemuros Físico",
+    "special tank": "Tanque Especial",
+    "physical tank": "Tanque Físico",
+    "bulky physical": "Tanque Físico",
+    "bulky special": "Tanque Especial",
+    "special sweeper": "Atacante Especial",
+    "physical sweeper": "Atacante Físico",
+    "fast special sweeper": "Atacante Especial Rápido",
+    "hazard setter": "Pone-Trampas",
+    "cleric": "Clérigo",
+    "balanced": "Equilibrado"
+}
+
 def enrich_pokemon_team_entry(p: Dict[str, Any]) -> Dict[str, Any]:
     role = p.get("role") or exporter.determine_role(p)
+    # Translate role if legacy English
+    if role.lower() in ROLE_TRANSLATIONS_ES:
+        role = ROLE_TRANSLATIONS_ES[role.lower()]
+    elif any(k in role.lower() for k in ROLE_TRANSLATIONS_ES):
+        for k, v in ROLE_TRANSLATIONS_ES.items():
+            if k in role.lower():
+                role = v
+                break
+    p["role"] = role
+
     profile = NATURES.get(role, NATURES["Balanced"])
-    if "role" not in p:
-        p["role"] = role
     if "moves_custom" not in p or not p["moves_custom"]:
         p["moves_custom"] = exporter.select_competitive_moves(p, role)
 
@@ -140,14 +166,50 @@ def chat_endpoint(req: ChatRequest):
             meta["last_pokemon"] = final_state["detected_pokemon"][0]
         elif final_state.get("last_pokemon"):
             meta["last_pokemon"] = final_state["last_pokemon"]
+
+        # Track interactive team building sessions
+        intent = final_state.get("intent", "general")
+        msg_lower = req.message.lower()
+        if intent == "team_build_suggest" or any(w in msg_lower for w in ["crea un equipo", "hazme un equipo", "arma un equipo", "completa mi equipo", "te dejo crear"]):
+            target = 6
+            if any(w in msg_lower for w in ["trio", "trío", "3 pokemon", "3 pokémon", "de 3", "tres"]):
+                target = 3
+            elif any(w in msg_lower for w in ["pareja", "duo", "dúo", "2 pokemon", "2 pokémon", "de 2", "dos"]):
+                target = 2
+            elif any(w in msg_lower for w in ["4 pokemon", "4 pokémon", "de 4", "cuatro"]):
+                target = 4
+            elif any(w in msg_lower for w in ["5 pokemon", "5 pokémon", "de 5", "cinco"]):
+                target = 5
+            elif any(w in msg_lower for w in ["1 pokemon", "1 pokémon", "uno solo", "un miembro"]):
+                target = 1
+            meta["team_build_target"] = target
+
+            if any(w in msg_lower for w in ["defens", "stall", "muro", "tanque", "aguant", "asco"]):
+                meta["team_build_archetype"] = "defensivo"
+            elif any(w in msg_lower for w in ["ofensiv", "sweeper", "rapido", "ataque", "hyper", "rápido"]):
+                meta["team_build_archetype"] = "ofensivo"
+            else:
+                meta["team_build_archetype"] = meta.get("team_build_archetype", "balanceado")
+            
+            meta["team_build_active"] = (len(enriched_team) < target)
+        elif len(enriched_team) >= meta.get("team_build_target", 6):
+            meta["team_build_active"] = False
+
+        team_build_info = {
+            "active": meta.get("team_build_active", False),
+            "target": meta.get("team_build_target", 6),
+            "current": len(enriched_team),
+            "archetype": meta.get("team_build_archetype", "defensivo")
+        }
         
         return {
             "session_id": session_id,
             "response": final_state.get("response", ""),
-            "intent": final_state.get("intent", "general"),
+            "intent": intent,
             "detected_pokemon": final_state.get("detected_pokemon", []),
             "team": enriched_team,
-            "suggested_options": final_state.get("suggested_options") or []
+            "suggested_options": final_state.get("suggested_options") or [],
+            "team_build": team_build_info
         }
     except Exception as e:
         return {

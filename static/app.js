@@ -20,6 +20,49 @@ const TYPE_NAMES_ES = {
   ICE: "Hielo", DRAGON: "Dragón", DARK: "Siniestro", FAIRY: "Hada"
 };
 
+const ROLE_TRANSLATIONS_ES = {
+  "special wall": "Muralla Especial",
+  "physical wall": "Muralla Física",
+  "stall breaker": "Rompemuros",
+  "wallbreaker": "Rompemuros",
+  "physical wallbreaker": "Rompemuros Físico",
+  "special tank": "Tanque Especial",
+  "physical tank": "Tanque Físico",
+  "tank": "Tanque",
+  "special sweeper": "Atacante Especial",
+  "physical sweeper": "Atacante Físico",
+  "fast special sweeper": "Atacante Rápido",
+  "fast sweeper": "Atacante Rápido",
+  "sweeper": "Atacante",
+  "hazard setter": "Pone-Trampas",
+  "hazard": "Pone-Trampas",
+  "spikes": "Púas & Trampas",
+  "cleric": "Clérigo / Soporte",
+  "pivot": "Pivote Táctico",
+  "cleaner": "Rematador",
+  "revenge killer": "Rematador",
+  "bulky physical": "Tanque Físico",
+  "bulky special": "Tanque Especial",
+  "balanced": "Equilibrado",
+  "unaware cleric": "Clérigo Soporte",
+  "speedster": "Velocista",
+  "lead": "Iniciador",
+  "support": "Soporte"
+};
+
+function translateRole(role) {
+  if (!role) return "Competitivo";
+  const r = role.toLowerCase().trim();
+  if (ROLE_TRANSLATIONS_ES[r]) return ROLE_TRANSLATIONS_ES[r];
+  const parts = role.split("/");
+  const firstPart = parts[0].trim().toLowerCase();
+  if (ROLE_TRANSLATIONS_ES[firstPart]) return ROLE_TRANSLATIONS_ES[firstPart];
+  for (const [k, v] of Object.entries(ROLE_TRANSLATIONS_ES)) {
+    if (r.includes(k)) return v;
+  }
+  return role;
+}
+
 function createTypeBadge(typeStr) {
   const t = (typeStr || "NORMAL").toUpperCase();
   const color = TYPE_COLORS[t] || "#777";
@@ -38,6 +81,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 let currentTeamList = [];
 let slotExpandedMap = {}; // name -> boolean
+let teamBuildState = {
+  active: false,
+  targetSize: 6,
+  archetype: "defensivo"
+};
 
 async function syncTeam() {
   try {
@@ -97,7 +145,7 @@ function renderTeam(teamList) {
     const bodyCollapsedClass = isExpanded ? "" : "collapsed";
 
     // Meta chips
-    const roleChip = p.role ? `<span class="slot-meta-chip"><strong>Rol:</strong> ${p.role}</span>` : "";
+    const roleChip = p.role ? `<span class="slot-meta-chip"><strong>Rol:</strong> ${translateRole(p.role)}</span>` : "";
     const itemChip = p.item ? `<span class="slot-meta-chip">🎒 ${p.item}</span>` : "";
     const abilityChip = p.ability ? `<span class="slot-meta-chip">✨ ${p.ability}</span>` : "";
     const natureChip = p.nature ? `<span class="slot-meta-chip">🧬 ${p.nature}</span>` : "";
@@ -310,6 +358,12 @@ async function sendMessage() {
       renderTeam(data.team);
     }
 
+    if (data.team_build) {
+      teamBuildState.active = data.team_build.active;
+      teamBuildState.targetSize = data.team_build.target;
+      teamBuildState.archetype = data.team_build.archetype;
+    }
+
     if (data.detected_pokemon && data.detected_pokemon.length > 0) {
       inspectPokemon(data.detected_pokemon[0]);
     }
@@ -353,7 +407,7 @@ function updateMessage(id, text, suggestedOptions) {
         const roleParam = (opt.role || '').replace(/'/g, "\\'");
         const itemParam = (opt.item || '').replace(/'/g, "\\'");
         const abilityParam = (opt.ability || '').replace(/'/g, "\\'");
-        const shortRole = opt.role ? opt.role.split('/')[0].trim() : '';
+        const shortRole = opt.role ? translateRole(opt.role.split('/')[0].trim()) : '';
 
         // Calculate background gradient or solid color based on typing
         let bgStyle = "";
@@ -408,10 +462,28 @@ function updateMessage(id, text, suggestedOptions) {
 }
 
 async function addSuggestedPokemon(name, role, item, ability, btnElement) {
+  if (currentTeamList.length >= 6) {
+    alert("¡Tu equipo ya tiene 6 Pokémon! Vacía un espacio o elimina uno para añadir otro.");
+    return;
+  }
+
   if (btnElement) {
     btnElement.disabled = true;
     btnElement.style.opacity = "0.7";
     btnElement.textContent = "⏳ Fichando...";
+
+    // Disable sibling choices in this message group
+    const parentChoices = btnElement.closest(".chat-arcade-buttons");
+    if (parentChoices) {
+      const allChoiceBtns = parentChoices.querySelectorAll(".arcade-btn-choice");
+      allChoiceBtns.forEach(b => {
+        if (b !== btnElement) {
+          b.disabled = true;
+          b.style.opacity = "0.35";
+          b.style.pointerEvents = "none";
+        }
+      });
+    }
   }
 
   try {
@@ -456,8 +528,26 @@ async function addSuggestedPokemon(name, role, item, ability, btnElement) {
       btnElement.style.color = "#000000";
     }
 
-    appendMessage("bot", `⚡ ¡Fichaje de élite confirmado! He sumado a **${name}** a tu formación táctica (${currentTeamList.length}/6). Si quieres seguir completando el equipo, dime qué otra necesidad tienes o pídemelo.`);
     inspectPokemon(name);
+
+    // Dynamic chained recruitment flow:
+    // If team building is active and the team hasn't reached target yet, automatically prompt for the next slot!
+    if (teamBuildState.active && currentTeamList.length < teamBuildState.targetSize) {
+      const nextSlot = currentTeamList.length + 1;
+      const target = teamBuildState.targetSize;
+      const arch = teamBuildState.archetype || "defensivo";
+
+      appendMessage("user", `✅ ¡Fichado **${name}**! Dame ahora las mejores opciones para el **Slot #${nextSlot} de ${target}** (${arch}).`);
+      
+      const queryNext = `He sumado a ${name} a mi equipo. Mi equipo ahora tiene ${currentTeamList.length}/${target} miembros. Recomiéndame las 3 mejores opciones de sinergia para el Slot #${nextSlot} de ${target} de mi equipo ${arch}.`;
+      await requestNextTeamSlot(queryNext);
+
+    } else if (teamBuildState.active && currentTeamList.length >= teamBuildState.targetSize) {
+      teamBuildState.active = false;
+      appendMessage("bot", `🏆 **¡EQUIPO COMPLETADO (${currentTeamList.length}/${teamBuildState.targetSize})!**\n\n¡Menuda formación legendaria acabamos de montar, hermano! Tienes las debilidades compensadas al máximo y roles defensivos y ofensivos claros. Ya puedes pulsar en **'📋 Showdown'** para exportar tu equipo listo para competir.`);
+    } else {
+      appendMessage("bot", `⚡ ¡Fichaje de élite confirmado! He sumado a **${name}** a tu formación táctica (${currentTeamList.length}/6). Si quieres seguir completando el equipo, dime qué otra necesidad tienes o pídemelo.`);
+    }
 
   } catch (err) {
     alert("Error de conexión: " + err.message);
@@ -465,6 +555,31 @@ async function addSuggestedPokemon(name, role, item, ability, btnElement) {
       btnElement.disabled = false;
       btnElement.style.opacity = "1";
     }
+  }
+}
+
+async function requestNextTeamSlot(queryText) {
+  const loadingId = appendMessage("bot", "<em>Analizando nuevas sinergias, debilidades del equipo y buscando los mejores candidatos...</em>");
+  try {
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: queryText, session_id: sessionId })
+    });
+    const data = await res.json();
+    updateMessage(loadingId, data.response || "Aquí tienes las siguientes opciones.", data.suggested_options);
+
+    if (data.team) {
+      currentTeamList = data.team;
+      renderTeam(data.team);
+    }
+    if (data.team_build) {
+      teamBuildState.active = data.team_build.active;
+      teamBuildState.targetSize = data.team_build.target;
+      teamBuildState.archetype = data.team_build.archetype;
+    }
+  } catch (err) {
+    updateMessage(loadingId, "⚠️ Error al consultar el siguiente miembro: " + err.message);
   }
 }
 
@@ -607,7 +722,7 @@ function renderTeamBoard(team, audit) {
                   <span style="font-size:0.75rem; color:var(--text-secondary); font-weight:normal;">#${p.id}</span>
                 </div>
                 <div class="board-card-types">${t1} ${t2}</div>
-                <div class="board-card-role">${p.role || "Competitivo"}</div>
+                <div class="board-card-role">${translateRole(p.role || "Competitivo")}</div>
               </div>
             </div>
             <button class="slot-action-btn edit-btn" style="width:32px; height:32px; font-size:0.9rem;" title="Editar Pokémon" onclick="closeTeamBoardModal(); editPokemonFromTeam('${p.name}');">
@@ -931,7 +1046,7 @@ async function selectPokemonForConfig(nameOrId) {
         <div style="margin-bottom: 6px; display:flex; align-items:center; gap:6px;">
           ${t1} ${t2} 
           <span style="margin-left: 8px; font-size: 0.82rem; color: var(--accent-yellow); font-weight: 700;">BST: ${pkmn.bst}</span>
-          <span style="font-size: 0.82rem; color: var(--accent-cyan); margin-left: 6px;">[${pkmn.role || 'Competitivo'}]</span>
+          <span style="font-size: 0.82rem; color: var(--accent-cyan); margin-left: 6px;">[${translateRole(pkmn.role || 'Competitivo')}]</span>
         </div>
         <div style="font-size: 0.8rem; color: var(--text-secondary);">
           PS: ${bs.hp} | Atq: ${bs.attack} | Def: ${bs.defense} | SpA: ${bs.sp_attack} | SpD: ${bs.sp_defense} | Vel: ${bs.speed}
@@ -1299,7 +1414,7 @@ function renderNaturesTab() {
 
   recomCard.innerHTML = `
     <div>
-      <div class="recom-tag">⭐ Recomendada para ${currentConfigPokemon ? currentConfigPokemon.role : 'Combate'}</div>
+      <div class="recom-tag">⭐ Recomendada para ${currentConfigPokemon ? translateRole(currentConfigPokemon.role) : 'Combate'}</div>
       <div style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
         <span>🧬 ${recomObj.label}</span>
       </div>

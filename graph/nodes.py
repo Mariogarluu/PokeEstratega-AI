@@ -181,13 +181,13 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
                 # Check for customized build keywords (defensivo, tanque, sweeper, etc.)
                 if any(w in query_lower for w in ["defens", "tanque", "wall", "aguant"]):
                     is_phys = pkmn["base_stats"]["defense"] >= pkmn["base_stats"]["sp_defense"]
-                    entry["role"] = "Physical Wall" if is_phys else "Special Wall"
+                    entry["role"] = "Muralla Física" if is_phys else "Muralla Especial"
                     entry["nature"] = "Agitada" if is_phys else "Serena"
                     entry["item"] = "Restos"
                     entry["moves_custom"] = exporter.select_competitive_moves(pkmn, entry["role"])
                 elif any(w in query_lower for w in ["ofensiv", "sweeper", "atacante", "rapido", "rápido"]):
                     is_phys = pkmn["base_stats"]["attack"] >= pkmn["base_stats"]["sp_attack"]
-                    entry["role"] = "Physical Sweeper" if is_phys else "Special Sweeper"
+                    entry["role"] = "Atacante Físico" if is_phys else "Atacante Especial"
                     entry["nature"] = "Alegre" if is_phys else "Miedosa"
                     entry["item"] = "Vidasfera"
                     entry["moves_custom"] = exporter.select_competitive_moves(pkmn, entry["role"])
@@ -291,6 +291,7 @@ ACCIONES REALIZADAS EN ESTE TURNO:
   Presenta las opciones con tu flow streamer (1 frase impactante por opción explicando por qué da asco al rival o cubre las debilidades del equipo).
   Dile al usuario que pulse cualquiera de los botones interactivos de abajo para incorporar al que prefiera.
 - NUNCA digas '¿qué Pokémon quieres añadir?' si en los DATOS EXACTOS ya figura que el Pokémon fue añadido exitosamente.
+- ROLES Y ATRIBUTOS EN ESPAÑOL OBLIGATORIO: Llama siempre a los roles y perfiles por su nombre en castellano ('Muralla Especial', 'Muralla Física', 'Rompemuros', 'Tanque Especial', 'Tanque Físico', 'Atacante Especial', 'Atacante Físico', 'Pone-Trampas', etc.). Nunca uses términos en inglés como 'Special Wall' o 'Stall Breaker'.
 - CONCISIÓN OBLIGATORIA: Sé directo, enérgico e impactante (máximo 160-180 palabras). Termina siempre tus frases y no te cortes a medias.
 
 REGLAS DE DOMINIO:

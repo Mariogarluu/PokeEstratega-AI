@@ -1,6 +1,16 @@
 from typing import Dict, List, Any, Optional
 
 NATURES = {
+    # Spanish Roles
+    "Atacante Físico": {"nature": "Alegre", "evs": "252 Atk / 4 SpD / 252 Spe", "item": "Vidasfera"},
+    "Atacante Especial": {"nature": "Miedosa", "evs": "252 SpA / 4 SpD / 252 Spe", "item": "Gafas Elección"},
+    "Muralla Física": {"nature": "Agitada", "evs": "252 HP / 252 Def / 4 SpD", "item": "Restos"},
+    "Muralla Especial": {"nature": "Serena", "evs": "252 HP / 4 Def / 252 SpD", "item": "Restos"},
+    "Tanque Físico": {"nature": "Firme", "evs": "252 HP / 252 Atk / 4 Spe", "item": "Chaleco Asalto"},
+    "Tanque Especial": {"nature": "Modesta", "evs": "252 HP / 252 SpA / 4 Spe", "item": "Chaleco Asalto"},
+    "Rompemuros": {"nature": "Agitada", "evs": "252 HP / 252 Def / 4 SpD", "item": "Restos"},
+    "Equilibrado": {"nature": "Firme", "evs": "252 Atk / 4 Def / 252 Spe", "item": "Banda Focus"},
+    # Legacy English Aliases
     "Physical Sweeper": {"nature": "Alegre", "evs": "252 Atk / 4 SpD / 252 Spe", "item": "Vidasfera"},
     "Special Sweeper": {"nature": "Miedosa", "evs": "252 SpA / 4 SpD / 252 Spe", "item": "Gafas Elección"},
     "Physical Wall": {"nature": "Agitada", "evs": "252 HP / 252 Def / 4 SpD", "item": "Restos"},
@@ -116,23 +126,23 @@ class ShowdownExporter:
 
         if spe >= 85:
             if spa > atk + 10:
-                return "Special Sweeper"
+                return "Atacante Especial"
             elif atk > spa + 10:
-                return "Physical Sweeper"
+                return "Atacante Físico"
             elif spa >= atk:
-                return "Special Sweeper"
+                return "Atacante Especial"
             else:
-                return "Physical Sweeper"
+                return "Atacante Físico"
         
         # Bulky / Walls
         if df >= 95 and hp >= 75:
-            return "Physical Wall"
+            return "Muralla Física"
         if spd >= 95 and hp >= 75:
-            return "Special Wall"
+            return "Muralla Especial"
         
         if atk >= spa:
-            return "Bulky Physical"
-        return "Bulky Special"
+            return "Tanque Físico"
+        return "Tanque Especial"
 
     def select_competitive_moves(self, pkmn: Dict[str, Any], role: str) -> List[str]:
         type1 = pkmn["type1"]
@@ -149,8 +159,9 @@ class ShowdownExporter:
             if m_name not in all_learned:
                 all_learned.append(m_name)
 
-        target_cat = "Physical" if "Physical" in role else "Special"
-        is_wall = "Wall" in role
+        is_phys = "Physical" in role or "Físico" in role or "Fisico" in role
+        target_cat = "Physical" if is_phys else "Special"
+        is_wall = "Wall" in role or "Muralla" in role or "Rompemuros" in role or "Tanque" in role or "Clérigo" in role
 
         stab_moves = []
         coverage_moves = []

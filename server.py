@@ -74,12 +74,19 @@ def enrich_pokemon_team_entry(p: Dict[str, Any]) -> Dict[str, Any]:
         p["role"] = role
     if "moves_custom" not in p or not p["moves_custom"]:
         p["moves_custom"] = exporter.select_competitive_moves(p, role)
-    if "ability" not in p or not p["ability"]:
-        p["ability"] = p.get("hidden_ability") or (p["abilities"][0] if p.get("abilities") else "Presión")
-    if "item" not in p or not p["item"]:
-        p["item"] = profile["item"]
-    if "nature" not in p or not p["nature"]:
-        p["nature"] = profile["nature"]
+
+    # Ensure ability is in Spanish
+    raw_ab = p.get("ability") or p.get("hidden_ability") or (p["abilities"][0] if p.get("abilities") else "Presión")
+    ab_obj = parser.get_ability(raw_ab)
+    p["ability"] = ab_obj["name"] if ab_obj else raw_ab
+
+    # Ensure item is in Spanish
+    raw_item = p.get("item") or profile["item"]
+    p["item"] = raw_item
+
+    # Ensure nature is in Spanish
+    raw_nature = p.get("nature") or profile["nature"]
+    p["nature"] = raw_nature
 
     enriched_moves = []
     for m_str in p.get("moves_custom", []):

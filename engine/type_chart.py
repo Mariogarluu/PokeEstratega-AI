@@ -234,15 +234,21 @@ class TypeChart:
 
             badge_label = f"🛡️ + {pkmn['name']} ({role_title.split('/')[0].strip()})"
 
+            raw_ab = pkmn.get("hidden_ability") or (pkmn["abilities"][0] if pkmn.get("abilities") else "Presión")
+            ab_obj = parser.get_ability(raw_ab)
+            ability_es = ab_obj["name"] if ab_obj else raw_ab
+
             scored_candidates.append({
+                "id": pkmn["id"],
                 "score": score,
                 "name": pkmn["name"],
                 "role": role_title,
                 "types": types_list,
+                "raw_types": [t1] + ([t2] if t2 else []),
                 "badge_label": badge_label,
                 "reason": reason,
                 "item": "Restos" if "Wall" in role_title or "Tank" in role_title else "Vidasfera",
-                "ability": pkmn.get("hidden_ability") or (pkmn["abilities"][0] if pkmn.get("abilities") else "Presión")
+                "ability": ability_es
             })
 
         scored_candidates.sort(key=lambda x: x["score"], reverse=True)

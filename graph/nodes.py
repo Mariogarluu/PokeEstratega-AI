@@ -182,15 +182,19 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
                 if any(w in query_lower for w in ["defens", "tanque", "wall", "aguant"]):
                     is_phys = pkmn["base_stats"]["defense"] >= pkmn["base_stats"]["sp_defense"]
                     entry["role"] = "Physical Wall" if is_phys else "Special Wall"
-                    entry["nature"] = "Impish" if is_phys else "Calm"
-                    entry["item"] = "Leftovers"
+                    entry["nature"] = "Agitada" if is_phys else "Serena"
+                    entry["item"] = "Restos"
                     entry["moves_custom"] = exporter.select_competitive_moves(pkmn, entry["role"])
                 elif any(w in query_lower for w in ["ofensiv", "sweeper", "atacante", "rapido", "rápido"]):
                     is_phys = pkmn["base_stats"]["attack"] >= pkmn["base_stats"]["sp_attack"]
                     entry["role"] = "Physical Sweeper" if is_phys else "Special Sweeper"
-                    entry["nature"] = "Jolly" if is_phys else "Timid"
-                    entry["item"] = "Life Orb"
+                    entry["nature"] = "Alegre" if is_phys else "Miedosa"
+                    entry["item"] = "Vidasfera"
                     entry["moves_custom"] = exporter.select_competitive_moves(pkmn, entry["role"])
+
+                raw_ab = pkmn.get("hidden_ability") or (pkmn["abilities"][0] if pkmn.get("abilities") else "Presión")
+                ab_obj = parser.get_ability(raw_ab)
+                entry["ability"] = ab_obj["name"] if ab_obj else raw_ab
 
                 team.append(entry)
                 build_label = f" ({entry.get('role', 'Estándar')})" if "role" in entry and entry.get("role") != exporter.determine_role(pkmn) else ""

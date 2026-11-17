@@ -353,10 +353,40 @@ function updateMessage(id, text, suggestedOptions) {
         const roleParam = (opt.role || '').replace(/'/g, "\\'");
         const itemParam = (opt.item || '').replace(/'/g, "\\'");
         const abilityParam = (opt.ability || '').replace(/'/g, "\\'");
-        const label = opt.badge_label || (`+ ${opt.name}`);
+        const shortRole = opt.role ? opt.role.split('/')[0].trim() : '';
+
+        // Calculate background gradient or solid color based on typing
+        let bgStyle = "";
+        let rawTypes = opt.raw_types || [];
+        if ((!rawTypes || rawTypes.length === 0) && opt.types) {
+          rawTypes = opt.types.map(t => {
+            const entry = Object.entries(TYPE_NAMES_ES).find(([k, v]) => v.toLowerCase() === t.toLowerCase());
+            return entry ? entry[0] : t.toUpperCase();
+          });
+        }
+
+        if (rawTypes && rawTypes.length >= 2) {
+          const c1 = TYPE_COLORS[rawTypes[0].toUpperCase()] || "#4facfe";
+          const c2 = TYPE_COLORS[rawTypes[1].toUpperCase()] || "#00f2fe";
+          bgStyle = `background: linear-gradient(135deg, ${c1} 0%, ${c2} 100%);`;
+        } else if (rawTypes && rawTypes.length === 1) {
+          const c1 = TYPE_COLORS[rawTypes[0].toUpperCase()] || "#4facfe";
+          bgStyle = `background-color: ${c1};`;
+        } else {
+          bgStyle = `background-color: var(--accent-yellow);`;
+        }
+
+        const iconHtml = opt.id ? `<img src="/icon/${opt.id}?v=c1" style="width: 22px; height: 22px; image-rendering: pixelated; vertical-align: middle; margin-right: 4px;" onerror="this.style.display='none'">` : '';
+
         return `
-          <button class="arcade-btn-choice" onclick="addSuggestedPokemon('${opt.name}', '${roleParam}', '${itemParam}', '${abilityParam}', this)">
-            ${label}
+          <button class="arcade-btn-choice" 
+                  style="${bgStyle} color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,0.9); border: 2.5px solid #000000; box-shadow: 3px 3px 0px #000000;"
+                  onclick="addSuggestedPokemon('${opt.name}', '${roleParam}', '${itemParam}', '${abilityParam}', this)">
+            ${iconHtml}
+            <span>+ ${opt.name}</span>
+            <span style="font-size: 0.7rem; opacity: 0.95; font-weight: 800; background: rgba(0,0,0,0.4); padding: 1px 6px; border-radius: 4px; margin-left: 4px;">
+              ${shortRole}
+            </span>
           </button>
         `;
       }).join("");
@@ -385,11 +415,26 @@ async function addSuggestedPokemon(name, role, item, ability, btnElement) {
   }
 
   try {
-    const res = await fetch(`/team/${sessionId}/add`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name })
-    });
+    let res;
+    if (item || ability) {
+      res = await fetch(`/team/${sessionId}/add_custom`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name,
+          moves: [],
+          ability: ability || "",
+          item: item || "",
+          nature: ""
+        })
+      });
+    } else {
+      res = await fetch(`/team/${sessionId}/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name })
+      });
+    }
 
     if (!res.ok) {
       const errData = await res.json();

@@ -8,3 +8,4 @@ class PokeState(TypedDict):
     detected_pokemon: List[str]
     context: str
     response: str
+    last_pokemon: Optional[str]

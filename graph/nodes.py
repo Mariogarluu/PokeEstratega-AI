@@ -1,5 +1,6 @@
 import os
 import re
+import difflib
 from typing import Dict, Any, List
 from dotenv import load_dotenv
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -15,6 +16,8 @@ from engine.showdown import ShowdownExporter
 from engine.indexing import get_vectorstore
 from graph.state import PokeState
 
+ENV_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+load_dotenv(ENV_PATH)
 load_dotenv()
 
 parser = PBSParser()
@@ -26,10 +29,10 @@ POKEMON_NAMES_MAP = {name.lower(): p for name, p in parser.pokemon.items() if le
 
 def classify_intent_node(state: PokeState) -> Dict[str, Any]:
     query = state["query"].lower()
+    last_pkmn = state.get("last_pokemon")
     
-    # Detect mentioned pokemon
+    # 1. Detect mentioned pokemon (exact and fuzzy matching for typos)
     detected = []
-    # Tokenize words to match against pokemon names
     tokens = re.findall(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]+', query)
     for token in tokens:
         token_clean = token.lower()
@@ -37,36 +40,52 @@ def classify_intent_node(state: PokeState) -> Dict[str, Any]:
             p_obj = POKEMON_NAMES_MAP[token_clean]
             if p_obj["name"] not in detected:
                 detected.append(p_obj["name"])
+        elif len(token_clean) >= 5:
+            close = difflib.get_close_matches(token_clean, POKEMON_NAMES_MAP.keys(), n=1, cutoff=0.74)
+            if close:
+                p_obj = POKEMON_NAMES_MAP[close[0]]
+                if p_obj["name"] not in detected:
+                    detected.append(p_obj["name"])
 
-    # Detect intent
+    # 2. Contextual pronoun / reference resolution (e.g. "añadelo al equipo", "ponlo", "agregalo")
+    if not detected and last_pkmn:
+        pronoun_triggers = [
+            "añadelo", "añádelo", "ponlo", "agregalo", "agrégalo", "metelo", "mételo",
+            "incluyelo", "inclúyelo", "este", "ese", "al equipo", "al team", "en el equipo", "en mi equipo"
+        ]
+        if any(pt in query for pt in pronoun_triggers):
+            detected = [last_pkmn]
+
+    # 3. Detect intent using flexible word stems
+    add_stems = ["añad", "agreg", "met", "inclu", "sum", "pon", "mete", "incorpor"]
+    remove_stems = ["quit", "elimin", "sac", "borr"]
+    off_topic_indicators = [
+        "bucle", "python", "javascript", "c++", "java", "html", "css", "react", "código", "codigo",
+        "programar", "programacion", "programación", "script", "algoritmo", "sql", "database",
+        "redaccion", "redacción", "ensayo", "tarea de historia", "resuelveme", "ecuacion", "ecuación"
+    ]
+
     if any(k in query for k in ["showdown", "exportar", "paste", "copiar equipo"]):
         intent = "showdown_export"
-    elif any(k in query for k in ["añadir", "agrega", "meter", "incluir", "pon a", "sumar a"]):
-        intent = "add_team"
-    elif any(k in query for k in ["quitar", "elimina", "sacar", "borra a"]):
+    elif any(k in query for k in remove_stems):
         intent = "remove_team"
-    elif any(k in query for k in ["equipo", "sinergia", "mi team", "auditoría", "vulnerabilidad del equipo"]):
+    elif any(k in query for k in add_stems) and (detected or any(w in query for w in ["equipo", "team", "lineup"])):
+        intent = "add_team"
+    elif any(k in query for k in ["equipo", "sinergia", "mi team", "auditoría", "auditoria", "vulnerabilidad del equipo"]):
         intent = "team_audit"
     elif any(k in query for k in ["debilidad", "debilidades", "resistencias", "inmunidad", "efectividad", "counter", "counters", "vulnerable"]):
         intent = "matchup"
-    elif detected or any(k in query for k in ["stats", "estadisticas", "ataque", "velocidad", "movimientos", "habilidad", "info", "ficha"]):
+    elif detected or any(k in query for k in ["stats", "estadisticas", "ataque", "velocidad", "defensa", "movimientos", "habilidad", "info", "ficha", "build", "set", "tanque", "defensivo", "ofensivo"]):
         intent = "pokedex"
+    elif not detected and any(ot in query for ot in off_topic_indicators):
+        intent = "off_topic"
     else:
-        # Check if the query is related to pokemon or coach interactions
-        pokemon_terms = [
-            "pokemon", "pokémon", "combate", "pelea", "estrategia", "entrenador", "añil",
-            "vgc", "ou", "showdown", "gimnasio", "liga", "sweeper", "wall", "pivot",
-            "objeto", "habilidad", "ataque", "movimiento", "tipo", "tipos", "evs", "ivs",
-            "naturaleza", "hola", "buenas", "ayuda", "saludos", "equipo", "team", "quién eres", "quien eres"
-        ]
-        if any(pt in query for pt in pokemon_terms):
-            intent = "general"
-        else:
-            intent = "off_topic"
+        intent = "general"
 
     return {
         "intent": intent,
-        "detected_pokemon": detected
+        "detected_pokemon": detected,
+        "last_pokemon": detected[0] if detected else last_pkmn
     }
 
 def pokedex_node(state: PokeState) -> Dict[str, Any]:
@@ -137,8 +156,11 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
     detected = state.get("detected_pokemon", [])
     intent = state.get("intent")
     system_notes = []
+    query_lower = state.get("query", "").lower()
 
     if intent == "add_team":
+        if not detected:
+            system_notes.append("¿A qué Pokémon deseas añadir? No he detectado ningún Pokémon en tu petición.")
         for p_name in detected:
             pkmn = parser.get_pokemon(p_name)
             if not pkmn:
@@ -148,8 +170,24 @@ def team_manager_node(state: PokeState) -> Dict[str, Any]:
             elif len(team) >= 6:
                 system_notes.append("El equipo ya tiene 6 Pokémon (máximo alcanzado).")
             else:
-                team.append(pkmn)
-                system_notes.append(f"✅ Se ha añadido a **{pkmn['name']}** al equipo ({len(team)}/6).")
+                entry = dict(pkmn)
+                # Check for customized build keywords (defensivo, tanque, sweeper, etc.)
+                if any(w in query_lower for w in ["defens", "tanque", "wall", "aguant"]):
+                    is_phys = pkmn["base_stats"]["defense"] >= pkmn["base_stats"]["sp_defense"]
+                    entry["role"] = "Physical Wall" if is_phys else "Special Wall"
+                    entry["nature"] = "Impish" if is_phys else "Calm"
+                    entry["item"] = "Leftovers"
+                    entry["moves_custom"] = exporter.select_competitive_moves(pkmn, entry["role"])
+                elif any(w in query_lower for w in ["ofensiv", "sweeper", "atacante", "rapido", "rápido"]):
+                    is_phys = pkmn["base_stats"]["attack"] >= pkmn["base_stats"]["sp_attack"]
+                    entry["role"] = "Physical Sweeper" if is_phys else "Special Sweeper"
+                    entry["nature"] = "Jolly" if is_phys else "Timid"
+                    entry["item"] = "Life Orb"
+                    entry["moves_custom"] = exporter.select_competitive_moves(pkmn, entry["role"])
+
+                team.append(entry)
+                build_label = f" ({entry.get('role', 'Estándar')})" if "role" in entry and entry.get("role") != exporter.determine_role(pkmn) else ""
+                system_notes.append(f"✅ Se ha añadido a **{pkmn['name']}**{build_label} al equipo ({len(team)}/6).")
 
     elif intent == "remove_team":
         for p_name in detected:

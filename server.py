@@ -13,8 +13,11 @@ from engine.showdown import ShowdownExporter, ALL_NATURES, COMPETITIVE_ITEMS, NA
 from graph.graph import poke_app
 
 from PIL import Image
+from dotenv import load_dotenv
 
 BASE_DIR = os.path.dirname(__file__)
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+load_dotenv()
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 SPRITE_CACHE_DIR = os.path.join(STATIC_DIR, "cache_sprites")
 os.makedirs(SPRITE_CACHE_DIR, exist_ok=True)
@@ -41,6 +44,7 @@ exporter = ShowdownExporter(parser)
 
 # In-memory sessions store: session_id -> list of pokemon dicts
 SESSIONS: Dict[str, List[Dict[str, Any]]] = {}
+SESSIONS_METADATA: Dict[str, Dict[str, Any]] = {}
 
 class ChatRequest(BaseModel):
     message: str
@@ -67,6 +71,7 @@ def get_index():
 def chat_endpoint(req: ChatRequest):
     session_id = req.session_id or str(uuid.uuid4())
     current_team = SESSIONS.get(session_id, [])
+    meta = SESSIONS_METADATA.setdefault(session_id, {"last_pokemon": None})
 
     state_input = {
         "query": req.message,
@@ -75,13 +80,20 @@ def chat_endpoint(req: ChatRequest):
         "intent": "",
         "detected_pokemon": [],
         "context": "",
-        "response": ""
+        "response": "",
+        "last_pokemon": meta.get("last_pokemon")
     }
 
     try:
         final_state = poke_app.invoke(state_input)
         # Update session team
         SESSIONS[session_id] = final_state.get("team", current_team)
+        
+        # Update last discussed pokemon
+        if final_state.get("detected_pokemon"):
+            meta["last_pokemon"] = final_state["detected_pokemon"][0]
+        elif final_state.get("last_pokemon"):
+            meta["last_pokemon"] = final_state["last_pokemon"]
         
         return {
             "session_id": session_id,

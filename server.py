@@ -317,13 +317,13 @@ def crop_first_frame(src_path: str, dst_path: str) -> bool:
 def get_pokemon_sprite(poke_id: int):
     cached_path = os.path.join(SPRITE_CACHE_DIR, f"battler_{poke_id}.png")
     if os.path.exists(cached_path):
-        return FileResponse(cached_path, media_type="image/png")
+        return FileResponse(cached_path, media_type="image/png", headers={"Cache-Control": "no-cache, must-revalidate"})
         
     for fn in [f"{poke_id:03d}.png", f"{poke_id}.png"]:
         src = os.path.join(LOCAL_BATTLERS_DIR, fn)
         if os.path.exists(src):
             if crop_first_frame(src, cached_path):
-                return FileResponse(cached_path, media_type="image/png")
+                return FileResponse(cached_path, media_type="image/png", headers={"Cache-Control": "no-cache, must-revalidate"})
             return FileResponse(src, media_type="image/png")
             
     return RedirectResponse(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{poke_id}.png")
@@ -332,13 +332,13 @@ def get_pokemon_sprite(poke_id: int):
 def get_pokemon_icon(poke_id: int):
     cached_path = os.path.join(SPRITE_CACHE_DIR, f"icon_{poke_id}.png")
     if os.path.exists(cached_path):
-        return FileResponse(cached_path, media_type="image/png")
+        return FileResponse(cached_path, media_type="image/png", headers={"Cache-Control": "no-cache, must-revalidate"})
         
     for fn in [f"icon{poke_id:03d}.png", f"icon{poke_id}.png"]:
         src = os.path.join(LOCAL_ICONS_DIR, fn)
         if os.path.exists(src):
             if crop_first_frame(src, cached_path):
-                return FileResponse(cached_path, media_type="image/png")
+                return FileResponse(cached_path, media_type="image/png", headers={"Cache-Control": "no-cache, must-revalidate"})
             return FileResponse(src, media_type="image/png")
             
     return RedirectResponse(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/{poke_id}.png")

@@ -68,7 +68,7 @@ function renderTeam(teamList) {
     return `
       <div class="team-slot filled">
         <div class="slot-info" onclick="inspectPokemon('${p.name}')" style="cursor: pointer;">
-          <img src="/icon/${p.id}" class="slot-sprite" alt="${p.name}" onerror="this.style.display='none'">
+          <img src="/icon/${p.id}?v=c1" class="slot-sprite" alt="${p.name}" onerror="this.style.display='none'">
           <div>
             <span class="slot-name">${p.name}</span>
             <div class="slot-types">${t1}${t2}</div>
@@ -151,7 +151,7 @@ async function inspectPokemon(nameOrId) {
 
     document.getElementById("inspector-content").innerHTML = `
       <div class="inspect-header">
-        <img src="/sprite/${pkmn.id}" class="inspect-sprite" alt="${pkmn.name}" onerror="this.src='/icon/${pkmn.id}';">
+        <img src="/sprite/${pkmn.id}?v=c1" class="inspect-sprite" alt="${pkmn.name}" onerror="this.src='/icon/${pkmn.id}?v=c1';">
         <div>
           <div style="margin-bottom: 6px;">${t1} ${t2}</div>
           <span style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 700;">BST: ${pkmn.bst}</span>
@@ -357,7 +357,7 @@ function filterPokemonList() {
     const t2 = p.type2 ? createTypeBadge(p.type2) : "";
     return `
       <div class="builder-pkmn-card" onclick="selectPokemonForConfig('${p.id}')">
-        <img src="/sprite/${p.id}" class="card-sprite" alt="${p.name}" loading="lazy" onerror="this.src='/icon/${p.id}';">
+        <img src="/sprite/${p.id}?v=c1" class="card-sprite" alt="${p.name}" loading="lazy" onerror="this.src='/icon/${p.id}?v=c1';">
         <div class="card-name">${p.name}</div>
         <div class="card-id">#${p.id}</div>
         <div class="card-types">${t1}${t2}</div>
@@ -439,7 +439,7 @@ async function selectPokemonForConfig(nameOrId) {
     const t2 = pkmn.type2 ? createTypeBadge(pkmn.type2) : "";
     const bs = pkmn.base_stats;
     document.getElementById("config-top-card").innerHTML = `
-      <img src="/sprite/${pkmn.id}" class="config-big-sprite" alt="${pkmn.name}" onerror="this.src='/icon/${pkmn.id}';">
+      <img src="/sprite/${pkmn.id}?v=c1" class="config-big-sprite" alt="${pkmn.name}" onerror="this.src='/icon/${pkmn.id}?v=c1';">
       <div>
         <h3 style="font-size: 1.25rem; color: #fff; margin-bottom: 4px;">
           ${pkmn.name} <span style="font-size: 0.85rem; color: var(--text-secondary);">#${pkmn.id}</span>

@@ -304,10 +304,31 @@ function closeBuilderModal() {
 
 function renderTypeFilters() {
   const container = document.getElementById("builder-type-filters");
+  if (!container) return;
+
   container.innerHTML = ALL_TYPES.map(t => {
-    const label = t === "ALL" ? "Todos" : (TYPE_NAMES_ES[t] || t);
-    const activeCls = activeTypeFilter === t ? "active" : "";
-    return `<button class="type-filter-btn ${activeCls}" onclick="setTypeFilter('${t}')">${label}</button>`;
+    const isAll = t === "ALL";
+    const label = isAll ? "Todos" : (TYPE_NAMES_ES[t] || t);
+    const isActive = activeTypeFilter === t;
+    const activeCls = isActive ? "active" : "";
+
+    let style = "";
+    if (isAll) {
+      if (isActive) {
+        style = "background-color: var(--accent-cyan); color: #0f111a; border: 1.5px solid var(--accent-cyan); box-shadow: 0 0 10px rgba(0,242,254,0.45); font-weight:700;";
+      } else {
+        style = "background-color: #232738; color: #cbd5e1; border: 1.5px solid var(--border-color);";
+      }
+    } else {
+      const color = TYPE_COLORS[t] || "#777";
+      if (isActive) {
+        style = `background-color: ${color}; color: #ffffff; border: 1.5px solid ${color}; box-shadow: 0 0 10px ${color}88; font-weight:700;`;
+      } else {
+        style = `background-color: ${color}22; color: #f0f2f5; border: 1.5px solid ${color}66;`;
+      }
+    }
+
+    return `<button class="type-filter-btn ${activeCls}" style="${style}" onclick="setTypeFilter('${t}')">${label}</button>`;
   }).join("");
 }
 

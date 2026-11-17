@@ -534,30 +534,33 @@ body {
 
 .builder-type-filter {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  margin-bottom: 12px;
-  scrollbar-width: thin;
+  margin-bottom: 14px;
 }
 
 .type-filter-btn {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   font-weight: 600;
   padding: 4px 10px;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s;
+  transition: all 0.18s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
 }
 
-.type-filter-btn.active, .type-filter-btn:hover {
-  background-color: var(--accent-cyan);
-  color: #0f111a;
-  border-color: var(--accent-cyan);
+.type-filter-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.25);
+}
+
+.type-filter-btn.active {
+  transform: translateY(-2px);
+  font-weight: 700;
 }
 
 .builder-grid {

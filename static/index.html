@@ -75,6 +75,9 @@
           </div>
         </div>
         <div class="team-actions">
+          <button class="action-btn success" onclick="openBuilderModal()">
+            <span>➕ Añadir Pokémon</span>
+          </button>
           <button class="action-btn primary" onclick="openShowdownModal()">
             <span>📋 Ver Showdown</span>
           </button>
@@ -99,6 +102,87 @@
 
     </aside>
 
+  </div>
+
+  <!-- Builder & Customizer Modal -->
+  <div class="modal-overlay" id="builder-modal">
+    <div class="modal-content builder-modal-content">
+      
+      <!-- Step 1: Select Pokemon -->
+      <div id="builder-step-select">
+        <div class="modal-header">
+          <h3 style="color:#fff; display:flex; align-items:center; gap:8px;">
+            <span>🔍 Seleccionar Pokémon</span>
+            <span style="font-size:0.8rem; color:var(--text-secondary);">(Pokédex Añil: 1003)</span>
+          </h3>
+          <button onclick="closeBuilderModal()" class="modal-close-btn">✕</button>
+        </div>
+        
+        <div class="builder-search-box">
+          <input type="text" id="builder-search" class="chat-input" placeholder="Buscar por nombre o número (ej: Garchomp, 445)..." oninput="filterPokemonList()">
+        </div>
+
+        <div class="builder-type-filter" id="builder-type-filters"></div>
+
+        <div class="builder-grid" id="builder-pkmn-grid"></div>
+      </div>
+
+      <!-- Step 2: Configure Moves, Ability, Item, Nature -->
+      <div id="builder-step-configure" style="display:none;">
+        <div class="modal-header">
+          <button class="back-btn" onclick="backToPokemonSelect()">← Volver a la lista</button>
+          <button onclick="closeBuilderModal()" class="modal-close-btn">✕</button>
+        </div>
+
+        <div class="config-top-card" id="config-top-card"></div>
+
+        <div class="config-form-grid">
+          <div class="config-col">
+            <h4 class="config-subtitle">⚔️ 4 Movimientos (Personalizables)</h4>
+            <div class="move-slot-group">
+              <label>Movimiento 1:</label>
+              <select id="move-slot-1" class="config-select"></select>
+            </div>
+            <div class="move-slot-group">
+              <label>Movimiento 2:</label>
+              <select id="move-slot-2" class="config-select"></select>
+            </div>
+            <div class="move-slot-group">
+              <label>Movimiento 3:</label>
+              <select id="move-slot-3" class="config-select"></select>
+            </div>
+            <div class="move-slot-group">
+              <label>Movimiento 4:</label>
+              <select id="move-slot-4" class="config-select"></select>
+            </div>
+          </div>
+
+          <div class="config-col">
+            <h4 class="config-subtitle">🛡️ Atributos Competitivos</h4>
+            <div class="move-slot-group">
+              <label>Habilidad:</label>
+              <select id="config-ability" class="config-select"></select>
+            </div>
+            <div class="move-slot-group">
+              <label>Objeto equipado:</label>
+              <select id="config-item" class="config-select"></select>
+            </div>
+            <div class="move-slot-group">
+              <label>Naturaleza:</label>
+              <select id="config-nature" class="config-select"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer-actions">
+          <button class="action-btn" onclick="backToPokemonSelect()">Cancelar</button>
+          <button class="action-btn success" id="btn-save-custom-pokemon" onclick="saveCustomPokemon()">
+            <span>⚔️ Guardar en el Equipo</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- Showdown Paste Modal -->

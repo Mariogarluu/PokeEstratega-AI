@@ -17,6 +17,44 @@ SETUP_UTILITY_MOVES = {
     "SLACKOFF", "SUBSTITUTE", "PROTECT", "TAUNT", "DEFOG", "RAPIDSPIN"
 }
 
+
+ALL_NATURES = [
+    {"name": "Adamant", "label": "Adamant (+Atk, -SpA)", "desc": "Firme (+Ataque, -Atq.Esp)"},
+    {"name": "Jolly", "label": "Jolly (+Spe, -SpA)", "desc": "Alegre (+Velocidad, -Atq.Esp)"},
+    {"name": "Modest", "label": "Modest (+SpA, -Atk)", "desc": "Modesta (+Atq.Esp, -Ataque)"},
+    {"name": "Timid", "label": "Timid (+Spe, -Atk)", "desc": "Miedosa (+Velocidad, -Ataque)"},
+    {"name": "Impish", "label": "Impish (+Def, -SpA)", "desc": "Agitada (+Defensa, -Atq.Esp)"},
+    {"name": "Calm", "label": "Calm (+SpD, -Atk)", "desc": "Serena (+Def.Esp, -Ataque)"},
+    {"name": "Bold", "label": "Bold (+Def, -Atk)", "desc": "Osada (+Defensa, -Ataque)"},
+    {"name": "Careful", "label": "Careful (+SpD, -SpA)", "desc": "Cauta (+Def.Esp, -Atq.Esp)"},
+    {"name": "Naive", "label": "Naive (+Spe, -SpD)", "desc": "Ingenua (+Velocidad, -Def.Esp)"},
+    {"name": "Hasty", "label": "Hasty (+Spe, -Def)", "desc": "Activa (+Velocidad, -Defensa)"},
+    {"name": "Quiet", "label": "Quiet (+SpA, -Spe)", "desc": "Mansa (+Atq.Esp, -Velocidad)"},
+    {"name": "Brave", "label": "Brave (+Atk, -Spe)", "desc": "Audaz (+Ataque, -Velocidad)"},
+    {"name": "Relaxed", "label": "Relaxed (+Def, -Spe)", "desc": "Plácida (+Defensa, -Velocidad)"},
+    {"name": "Sassy", "label": "Sassy (+SpD, -Spe)", "desc": "Grosera (+Def.Esp, -Velocidad)"},
+    {"name": "Hardy", "label": "Hardy (Neutral)", "desc": "Fuerte (Neutral)"}
+]
+
+COMPETITIVE_ITEMS = [
+    {"name": "Life Orb", "desc": "Vidasfera (+30% daño, -10% PS por golpe)"},
+    {"name": "Leftovers", "desc": "Restos (Recupera 1/16 PS cada turno)"},
+    {"name": "Choice Band", "desc": "Cinta Elección (+50% Ataque, bloquea movimiento)"},
+    {"name": "Choice Specs", "desc": "Gafas Elección (+50% Atq.Esp, bloquea movimiento)"},
+    {"name": "Choice Scarf", "desc": "Pañuelo Elección (+50% Velocidad, bloquea movimiento)"},
+    {"name": "Assault Vest", "desc": "Chaleco Asalto (+50% Def.Esp, solo movimientos de daño)"},
+    {"name": "Focus Sash", "desc": "Banda Focus (Sobrevive con 1 PS a golpes fulminantes)"},
+    {"name": "Heavy-Duty Boots", "desc": "Botas Gruesas (Inmune a trampa rocas y púas)"},
+    {"name": "Rocky Helmet", "desc": "Casco Dentado (Daña 1/6 al rival al recibir contacto)"},
+    {"name": "Eviolite", "desc": "Mineral Evolutivo (+50% Def y Def.Esp si puede evolucionar)"},
+    {"name": "Light Clay", "desc": "Refleluz (Aumenta pantallas a 8 turnos)"},
+    {"name": "Expert Belt", "desc": "Cinta Experto (+20% daño si es supereficaz)"},
+    {"name": "Air Balloon", "desc": "Globo Helio (Inmunidad a Tierra hasta recibir daño)"},
+    {"name": "Sitrus Berry", "desc": "Baya Zidra (Restaura 25% PS al bajar de 50%)"},
+    {"name": "Lum Berry", "desc": "Baya Milagro (Cura cualquier cambio de estado)"},
+    {"name": "Weakness Policy", "desc": "Seguro Debilidad (+2 Atk y Atq.Esp al recibir golpe supereficaz)"}
+]
+
 class ShowdownExporter:
     def __init__(self, pbs_parser):
         self.parser = pbs_parser
@@ -130,22 +168,34 @@ class ShowdownExporter:
 
         return chosen[:4]
 
+
     def export_pokemon(self, pkmn: Dict[str, Any], custom_moves: Optional[List[str]] = None) -> str:
         name = pkmn["name"]
         role = self.determine_role(pkmn)
         profile = NATURES.get(role, NATURES["Balanced"])
 
-        ability = pkmn.get("hidden_ability") or (pkmn["abilities"][0] if pkmn.get("abilities") else "Cursed Body")
-        ab_obj = self.parser.get_ability(ability)
-        ability_name = ab_obj["name"] if ab_obj else ability
+        item = pkmn.get("item") or profile["item"]
+        
+        # Ability: check custom or default
+        if pkmn.get("ability"):
+            ability_name = pkmn["ability"]
+        else:
+            ability = pkmn.get("hidden_ability") or (pkmn["abilities"][0] if pkmn.get("abilities") else "Cursed Body")
+            ab_obj = self.parser.get_ability(ability)
+            ability_name = ab_obj["name"] if ab_obj else ability
 
-        moves = custom_moves or self.select_competitive_moves(pkmn, role)
+        nature = pkmn.get("nature") or profile["nature"]
+        if " " in nature:
+            nature = nature.split(" ")[0]
+
+        evs = pkmn.get("evs") or profile["evs"]
+        moves = custom_moves or pkmn.get("moves_custom") or pkmn.get("custom_moves") or self.select_competitive_moves(pkmn, role)
 
         lines = [
-            f"{name} @ {profile['item']}",
+            f"{name} @ {item}",
             f"Ability: {ability_name}",
-            f"EVs: {profile['evs']}",
-            f"{profile['nature']} Nature"
+            f"EVs: {evs}",
+            f"{nature} Nature"
         ]
         for m in moves:
             lines.append(f"- {m}")

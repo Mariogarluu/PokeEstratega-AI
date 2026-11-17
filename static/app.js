@@ -68,8 +68,11 @@ function renderTeam(teamList) {
     return `
       <div class="team-slot filled">
         <div class="slot-info" onclick="inspectPokemon('${p.name}')" style="cursor: pointer;">
-          <span class="slot-name">${p.name}</span>
-          <div class="slot-types">${t1}${t2}</div>
+          <img src="/icon/${p.id}" class="slot-sprite" alt="${p.name}" onerror="this.style.display='none'">
+          <div>
+            <span class="slot-name">${p.name}</span>
+            <div class="slot-types">${t1}${t2}</div>
+          </div>
         </div>
         <button class="remove-btn" title="Eliminar del equipo" onclick="removeFromTeam('${p.name}')">✕</button>
       </div>
@@ -147,9 +150,12 @@ async function inspectPokemon(nameOrId) {
     const immBadges = matchups.immunities.map(t => createTypeBadge(t)).join(" ") || "<span style='color:#777;'>Ninguna</span>";
 
     document.getElementById("inspector-content").innerHTML = `
-      <div style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-        <div>${t1} ${t2}</div>
-        <span style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 700;">BST: ${pkmn.bst}</span>
+      <div class="inspect-header">
+        <img src="/sprite/${pkmn.id}" class="inspect-sprite" alt="${pkmn.name}" onerror="this.src='/icon/${pkmn.id}';">
+        <div>
+          <div style="margin-bottom: 6px;">${t1} ${t2}</div>
+          <span style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 700;">BST: ${pkmn.bst}</span>
+        </div>
       </div>
       <div style="margin-bottom: 14px;">${statRows}</div>
       <div style="font-size: 0.8rem; line-height: 1.6;">
@@ -260,4 +266,241 @@ function copyShowdownClipboard() {
   const btn = document.getElementById("copy-btn-text");
   btn.textContent = "✅ ¡Copiado!";
   setTimeout(() => { btn.textContent = "📋 Copiar al Portapapeles"; }, 2000);
+}
+
+// ---------------------------------------------------------------------
+// Teambuilder & Customizer Modal Logic
+// ---------------------------------------------------------------------
+let allPokemonList = [];
+let activeTypeFilter = "ALL";
+let currentConfigPokemon = null;
+let currentCustomData = null;
+
+const ALL_TYPES = [
+  "ALL", "NORMAL", "FIRE", "WATER", "GRASS", "ELECTRIC", "ICE", "FIGHTING",
+  "POISON", "GROUND", "FLYING", "PSYCHIC", "BUG", "ROCK", "GHOST", "DRAGON", "STEEL", "DARK", "FAIRY"
+];
+
+async function openBuilderModal() {
+  const modal = document.getElementById("builder-modal");
+  modal.style.display = "flex";
+  
+  // Reset view to step 1
+  document.getElementById("builder-step-select").style.display = "block";
+  document.getElementById("builder-step-configure").style.display = "none";
+  
+  renderTypeFilters();
+  
+  if (!allPokemonList || allPokemonList.length === 0) {
+    await loadPokemonList();
+  } else {
+    filterPokemonList();
+  }
+}
+
+function closeBuilderModal() {
+  document.getElementById("builder-modal").style.display = "none";
+}
+
+function renderTypeFilters() {
+  const container = document.getElementById("builder-type-filters");
+  container.innerHTML = ALL_TYPES.map(t => {
+    const label = t === "ALL" ? "Todos" : (TYPE_NAMES_ES[t] || t);
+    const activeCls = activeTypeFilter === t ? "active" : "";
+    return `<button class="type-filter-btn ${activeCls}" onclick="setTypeFilter('${t}')">${label}</button>`;
+  }).join("");
+}
+
+function setTypeFilter(t) {
+  activeTypeFilter = t;
+  renderTypeFilters();
+  filterPokemonList();
+}
+
+async function loadPokemonList() {
+  const grid = document.getElementById("builder-pkmn-grid");
+  grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 20px;">Cargando Pokédex...</div>`;
+  try {
+    const res = await fetch("/pokemon-list");
+    if (res.ok) {
+      const data = await res.json();
+      allPokemonList = data.pokemon;
+      filterPokemonList();
+    }
+  } catch (err) {
+    grid.innerHTML = `<div style="grid-column: 1/-1; color: #ff6b6b; padding: 20px;">Error al cargar la Pokédex: ${err.message}</div>`;
+  }
+}
+
+function filterPokemonList() {
+  const search = document.getElementById("builder-search").value.trim().toLowerCase();
+  const grid = document.getElementById("builder-pkmn-grid");
+
+  let filtered = allPokemonList;
+  if (activeTypeFilter !== "ALL") {
+    filtered = filtered.filter(p => p.type1 === activeTypeFilter || p.type2 === activeTypeFilter);
+  }
+  if (search) {
+    filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || p.id.toString() === search);
+  }
+
+  // Cap to 60 for smooth rendering
+  const displayList = filtered.slice(0, 60);
+
+  if (displayList.length === 0) {
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 30px;">No se encontraron Pokémon con ese criterio.</div>`;
+    return;
+  }
+
+  grid.innerHTML = displayList.map(p => {
+    const t1 = createTypeBadge(p.type1);
+    const t2 = p.type2 ? createTypeBadge(p.type2) : "";
+    return `
+      <div class="builder-pkmn-card" onclick="selectPokemonForConfig('${p.id}')">
+        <img src="/sprite/${p.id}" class="card-sprite" alt="${p.name}" loading="lazy" onerror="this.src='/icon/${p.id}';">
+        <div class="card-name">${p.name}</div>
+        <div class="card-id">#${p.id}</div>
+        <div class="card-types">${t1}${t2}</div>
+        <div class="card-bst">BST: ${p.bst}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function selectPokemonForConfig(nameOrId) {
+  try {
+    const res = await fetch(`/pokemon/${nameOrId}/custom-data`);
+    if (!res.ok) return;
+    const data = await res.json();
+    currentCustomData = data;
+    currentConfigPokemon = data.pokemon;
+
+    // Switch step
+    document.getElementById("builder-step-select").style.display = "none";
+    document.getElementById("builder-step-configure").style.display = "block";
+
+    // Render top card
+    const pkmn = data.pokemon;
+    const t1 = createTypeBadge(pkmn.type1);
+    const t2 = pkmn.type2 ? createTypeBadge(pkmn.type2) : "";
+    const bs = pkmn.base_stats;
+    document.getElementById("config-top-card").innerHTML = `
+      <img src="/sprite/${pkmn.id}" class="config-big-sprite" alt="${pkmn.name}" onerror="this.src='/icon/${pkmn.id}';">
+      <div>
+        <h3 style="font-size: 1.25rem; color: #fff; margin-bottom: 4px;">${pkmn.name} <span style="font-size: 0.85rem; color: var(--text-secondary);">#${pkmn.id}</span></h3>
+        <div style="margin-bottom: 6px;">${t1} ${t2} <span style="margin-left: 8px; font-size: 0.82rem; color: var(--accent-yellow); font-weight: 700;">BST: ${pkmn.bst}</span></div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);">
+          PS: ${bs.hp} | Atq: ${bs.attack} | Def: ${bs.defense} | SpA: ${bs.sp_attack} | SpD: ${bs.sp_defense} | Vel: ${bs.speed}
+        </div>
+      </div>
+    `;
+
+    // Populate Moves
+    const learnable = data.learnable_moves || [];
+    const moveOptionsHtml = learnable.map(m => {
+      const typeEs = TYPE_NAMES_ES[m.type] || m.type;
+      const catLabel = m.category === "Physical" ? "Físico" : (m.category === "Special" ? "Especial" : "Estado");
+      const potStr = m.power > 0 ? `(Pot: ${m.power})` : "(Estado)";
+      return `<option value="${m.name}">[${catLabel}] ${m.name} ${potStr} - ${typeEs}</option>`;
+    }).join("");
+
+    const defMoves = data.default_moves || [];
+    for (let i = 1; i <= 4; i++) {
+      const sel = document.getElementById(`move-slot-${i}`);
+      sel.innerHTML = moveOptionsHtml;
+      // Preselect recommended move
+      const targetMove = defMoves[i - 1];
+      if (targetMove) {
+        for (let opt of sel.options) {
+          if (opt.value.toLowerCase() === targetMove.toLowerCase()) {
+            sel.value = opt.value;
+            break;
+          }
+        }
+      }
+    }
+
+    // Populate Abilities
+    const abilitySel = document.getElementById("config-ability");
+    abilitySel.innerHTML = (data.abilities || []).map(a => {
+      return `<option value="${a.name}">${a.name}</option>`;
+    }).join("");
+    if (data.default_ability) abilitySel.value = data.default_ability;
+
+    // Populate Items
+    const itemSel = document.getElementById("config-item");
+    itemSel.innerHTML = (data.all_items || []).map(it => {
+      return `<option value="${it.name}">${it.name} - ${it.desc}</option>`;
+    }).join("");
+    if (data.default_item) itemSel.value = data.default_item;
+
+    // Populate Natures
+    const natureSel = document.getElementById("config-nature");
+    natureSel.innerHTML = (data.all_natures || []).map(nat => {
+      return `<option value="${nat.name}">${nat.label} - ${nat.desc}</option>`;
+    }).join("");
+    if (data.default_nature) natureSel.value = data.default_nature;
+
+  } catch (err) {
+    alert("Error al obtener datos de personalización: " + err.message);
+  }
+}
+
+function backToPokemonSelect() {
+  document.getElementById("builder-step-configure").style.display = "none";
+  document.getElementById("builder-step-select").style.display = "block";
+}
+
+async function saveCustomPokemon() {
+  if (!currentConfigPokemon) return;
+
+  const moves = [
+    document.getElementById("move-slot-1").value,
+    document.getElementById("move-slot-2").value,
+    document.getElementById("move-slot-3").value,
+    document.getElementById("move-slot-4").value
+  ].filter(m => !!m);
+
+  const ability = document.getElementById("config-ability").value;
+  const item = document.getElementById("config-item").value;
+  const nature = document.getElementById("config-nature").value;
+
+  const saveBtn = document.getElementById("btn-save-custom-pokemon");
+  saveBtn.disabled = true;
+
+  try {
+    const res = await fetch(`/team/${sessionId}/add_custom`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: currentConfigPokemon.name,
+        moves: moves,
+        ability: ability,
+        item: item,
+        nature: nature
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.detail || "Error al añadir el Pokémon");
+      return;
+    }
+
+    renderTeam(data.team);
+    closeBuilderModal();
+
+    // Inspect the newly added pokemon
+    inspectPokemon(currentConfigPokemon.name);
+
+    // Notify in chat
+    if (data.chat_summary) {
+      appendMessage("bot", `⚔️ ${data.chat_summary}`);
+    }
+
+  } catch (err) {
+    alert("Error al guardar el Pokémon: " + err.message);
+  } finally {
+    saveBtn.disabled = false;
+  }
 }

@@ -242,3 +242,28 @@ class PBSParser:
             if a["name"].upper() == name_or_internal:
                 return a
         return None
+
+    def get_learnable_moves(self, pkmn: Dict[str, Any]) -> List[Dict[str, Any]]:
+        seen = set()
+        moves_list = []
+        
+        # Level-up moves
+        for m_info in pkmn.get("moves", []):
+            m_id = m_info["move"].upper()
+            if m_id not in seen:
+                seen.add(m_id)
+                m_obj = self.get_move(m_id)
+                if m_obj:
+                    moves_list.append(m_obj)
+                    
+        # Egg moves
+        for m_id in pkmn.get("egg_moves", []):
+            m_id = m_id.upper()
+            if m_id not in seen:
+                seen.add(m_id)
+                m_obj = self.get_move(m_id)
+                if m_obj:
+                    moves_list.append(m_obj)
+                    
+        moves_list.sort(key=lambda m: m["name"])
+        return moves_list

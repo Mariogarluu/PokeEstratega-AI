@@ -4,16 +4,18 @@ from typing import Dict, Any, List, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse, RedirectResponse
 from pydantic import BaseModel
 
 from engine.pbs_parser import PBSParser
 from engine.type_chart import TypeChart, SPANISH_TYPE_NAMES, TYPE_COLORS
-from engine.showdown import ShowdownExporter
+from engine.showdown import ShowdownExporter, ALL_NATURES, COMPETITIVE_ITEMS, NATURES
 from graph.graph import poke_app
 
 BASE_DIR = os.path.dirname(__file__)
 STATIC_DIR = os.path.join(BASE_DIR, "static")
+LOCAL_BATTLERS_DIR = r"C:\Users\mario\Desktop\Juego\Pokemon Anil V3.52\Graphics\Battlers"
+LOCAL_ICONS_DIR = r"C:\Users\mario\Desktop\Juego\Pokemon Anil V3.52\Graphics\Icons"
 
 app = FastAPI(
     title="PokeEstratega-AI",
@@ -42,6 +44,13 @@ class ChatRequest(BaseModel):
 
 class AddPokemonRequest(BaseModel):
     name: str
+
+class AddCustomPokemonRequest(BaseModel):
+    name: str
+    moves: List[str]
+    ability: Optional[str] = None
+    item: Optional[str] = None
+    nature: Optional[str] = None
 
 @app.get("/")
 def get_index():
@@ -122,6 +131,100 @@ def add_to_team(session_id: str, req: AddPokemonRequest):
     SESSIONS[session_id] = team
     return {"message": f"{pkmn['name']} añadido con éxito.", "team": team}
 
+@app.post("/team/{session_id}/add_custom")
+def add_custom_to_team(session_id: str, req: AddCustomPokemonRequest):
+    team = SESSIONS.get(session_id, [])
+    if len(team) >= 6:
+        raise HTTPException(status_code=400, detail="El equipo ya tiene 6 Pokémon.")
+    
+    base_pkmn = parser.get_pokemon(req.name)
+    if not base_pkmn:
+        raise HTTPException(status_code=404, detail=f"Pokémon '{req.name}' no encontrado.")
+    
+    if any(p["name"].lower() == base_pkmn["name"].lower() for p in team):
+        raise HTTPException(status_code=400, detail=f"{base_pkmn['name']} ya está en el equipo.")
+    
+    # Create customized pokemon entry
+    role = exporter.determine_role(base_pkmn)
+    profile = NATURES.get(role, NATURES["Balanced"])
+    
+    custom_entry = dict(base_pkmn)
+    custom_entry["moves_custom"] = [m.strip() for m in req.moves if m.strip()]
+    custom_entry["ability"] = req.ability.strip() if req.ability else (base_pkmn.get("hidden_ability") or base_pkmn["abilities"][0])
+    custom_entry["item"] = req.item.strip() if req.item else profile["item"]
+    custom_entry["nature"] = req.nature.strip() if req.nature else profile["nature"]
+    
+    team.append(custom_entry)
+    SESSIONS[session_id] = team
+    
+    moves_str = ", ".join(custom_entry["moves_custom"])
+    chat_summary = f"He añadido a **{base_pkmn['name']}** a tu equipo (Objeto: *{custom_entry['item']}*, Habilidad: *{custom_entry['ability']}*, Naturaleza: *{custom_entry['nature']}*, Movimientos: *{moves_str}*)."
+    
+    return {
+        "message": f"{base_pkmn['name']} personalizado añadido con éxito.",
+        "team": team,
+        "chat_summary": chat_summary,
+        "pokemon": custom_entry
+    }
+
+@app.get("/pokemon-list")
+def get_pokemon_list():
+    p_list = []
+    for pid in sorted(parser.pokemon_by_id.keys()):
+        p = parser.pokemon_by_id[pid]
+        p_list.append({
+            "id": p["id"],
+            "name": p["name"],
+            "type1": p["type1"],
+            "type2": p.get("type2"),
+            "bst": p["bst"],
+            "role": exporter.determine_role(p)
+        })
+    return {"pokemon": p_list}
+
+@app.get("/pokemon/{name_or_id}/custom-data")
+def get_pokemon_custom_data(name_or_id: str):
+    pkmn = parser.get_pokemon(name_or_id)
+    if not pkmn:
+        raise HTTPException(status_code=404, detail="Pokémon no encontrado.")
+        
+    role = exporter.determine_role(pkmn)
+    profile = NATURES.get(role, NATURES["Balanced"])
+    default_moves = exporter.select_competitive_moves(pkmn, role)
+    all_learnable = parser.get_learnable_moves(pkmn)
+    
+    # Abilities
+    abilities = []
+    for a in pkmn.get("abilities", []):
+        ab_obj = parser.get_ability(a)
+        abilities.append({"internal": a, "name": ab_obj["name"] if ab_obj else a, "hidden": False})
+    if pkmn.get("hidden_ability"):
+        ha = pkmn["hidden_ability"]
+        ha_obj = parser.get_ability(ha)
+        abilities.append({"internal": ha, "name": f"{ha_obj['name'] if ha_obj else ha} (Oculta)", "hidden": True})
+        
+    default_ability = abilities[-1]["name"] if abilities else "Presión"
+    
+    return {
+        "pokemon": {
+            "id": pkmn["id"],
+            "name": pkmn["name"],
+            "type1": pkmn["type1"],
+            "type2": pkmn.get("type2"),
+            "base_stats": pkmn["base_stats"],
+            "bst": pkmn["bst"],
+            "role": role
+        },
+        "default_moves": default_moves,
+        "learnable_moves": all_learnable,
+        "abilities": abilities,
+        "default_ability": default_ability,
+        "default_nature": profile["nature"],
+        "default_item": profile["item"],
+        "all_natures": ALL_NATURES,
+        "all_items": COMPETITIVE_ITEMS
+    }
+
 @app.post("/team/{session_id}/remove")
 def remove_from_team(session_id: str, req: AddPokemonRequest):
     team = SESSIONS.get(session_id, [])
@@ -181,6 +284,28 @@ def healthcheck():
         "total_moves": len(parser.moves),
         "total_abilities": len(parser.abilities)
     }
+
+@app.get("/sprite/{poke_id}")
+def get_pokemon_sprite(poke_id: int):
+    filename = f"{poke_id:03d}.png"
+    local_path = os.path.join(LOCAL_BATTLERS_DIR, filename)
+    if os.path.exists(local_path):
+        return FileResponse(local_path, media_type="image/png")
+    local_path2 = os.path.join(LOCAL_BATTLERS_DIR, f"{poke_id}.png")
+    if os.path.exists(local_path2):
+        return FileResponse(local_path2, media_type="image/png")
+    return RedirectResponse(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{poke_id}.png")
+
+@app.get("/icon/{poke_id}")
+def get_pokemon_icon(poke_id: int):
+    filename = f"icon{poke_id:03d}.png"
+    local_path = os.path.join(LOCAL_ICONS_DIR, filename)
+    if os.path.exists(local_path):
+        return FileResponse(local_path, media_type="image/png")
+    local_path2 = os.path.join(LOCAL_ICONS_DIR, f"icon{poke_id}.png")
+    if os.path.exists(local_path2):
+        return FileResponse(local_path2, media_type="image/png")
+    return RedirectResponse(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/{poke_id}.png")
 
 # Mount static folder if exists
 if os.path.exists(STATIC_DIR):
